@@ -1,0 +1,6 @@
+{
+  "name": "Elog - SIWES Electronic Logbook",
+  "description": "Enterprise-grade SIWES Electronic Logbook platform for university industrial training placements.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
