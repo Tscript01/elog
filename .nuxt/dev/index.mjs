@@ -652,11 +652,11 @@ const _inlineRuntimeConfig = {
     }
   },
   "public": {
-    "apiBaseUrl": "https://elogbookserver2.vercel.app/api",
+    "apiBaseUrl": "https://elogbookserver2.vercel.app",
     "cloudinaryUploadPreset": "wedparty",
     "cloudinaryCloudName": "dvrpodtdw",
-    "cloudinaryApiKey": "247382469854818",
-    "cloudinaryApiSecret": "foPXDIHWCP63Sd_C3ExR-9hAtX0"
+    "cloudinaryApiKey": "",
+    "cloudinaryApiSecret": ""
   }
 };
 const envOptions = {

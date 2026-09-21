@@ -33,3 +33,16 @@ export { requestIdleCallback, cancelIdleCallback } from '#app/compat/idle-callba
 export { setInterval } from '#app/compat/interval';
 export { definePageMeta, PageMeta } from '#app/composables/pages';
 export { defineLazyHydrationComponent } from '#app/composables/lazy-hydration';
+export { useApi } from '../app/composables/useApi';
+export { useToast, ToastTone, ToastMessage } from '../app/composables/useToast';
+export { AUTH_TOKEN_COOKIE, AUTH_USER_COOKIE, AUTH_PROFILE_COOKIE, getApiBase, checkIsAuthenticated, getDirectToken, getDirectUser, saveDirectAuth, clearDirectAuth, apiDirectLogin, apiDirectRegister, apiDirectForgotPassword, apiDirectResetPassword, DirectLoginResponse, DirectRegisterPayload } from '../app/utils/auth';
+export { toDate, addDays, formatLongDate, formatShortDate, formatDayLabel, formatDayNumber, formatRange, daysBetween } from '../app/utils/date';
+export { submissionTone, submissionLabel, clearanceTone, clearanceLabel, BadgeTone } from '../app/utils/status';
+export { ApiError, getStoredToken, setStoredToken, getCustomApiBaseUrl, setCustomApiBaseUrl, getLiveModeSetting, setLiveModeSetting, ApiResponse } from '../app/utils/storage';
+export { useAuthStore, UserProfile } from '../app/stores/auth';
+export { useDailyLogsStore, LogRecord, PaginationMeta } from '../app/stores/dailyLogs';
+export { useLogbookStore, SubmissionStatus, WeeklySubmissionRecord } from '../app/stores/logbook';
+export { usePlacementStore, PlacementData } from '../app/stores/placement';
+export { useSessionStore } from '../app/stores/session';
+export { useUiStore } from '../app/stores/ui';
+export { defineStore, acceptHMRUpdate, usePinia, storeToRefs } from '../node_modules/@pinia/nuxt/dist/runtime/composables';

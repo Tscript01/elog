@@ -14,6 +14,26 @@ type HydrationStrategies = {
 type LazyComponent<T> = DefineComponent<HydrationStrategies, {}, {}, {}, {}, {}, {}, { hydrated: () => void }> & T
 
 interface _GlobalComponents {
+  LayoutApiConfigModal: typeof import("../../app/components/layout/ApiConfigModal.vue")['default']
+  LayoutAppBreadcrumbs: typeof import("../../app/components/layout/AppBreadcrumbs.vue")['default']
+  LayoutAppHeader: typeof import("../../app/components/layout/AppHeader.vue")['default']
+  LayoutAppSidebar: typeof import("../../app/components/layout/AppSidebar.vue")['default']
+  LayoutThemeToggle: typeof import("../../app/components/layout/ThemeToggle.vue")['default']
+  LayoutUserMenu: typeof import("../../app/components/layout/UserMenu.vue")['default']
+  StudentDayNavigator: typeof import("../../app/components/student/DayNavigator.vue")['default']
+  StudentLogEntryEditor: typeof import("../../app/components/student/LogEntryEditor.vue")['default']
+  StudentMediaUploader: typeof import("../../app/components/student/MediaUploader.vue")['default']
+  StudentSupervisorFeedbackCard: typeof import("../../app/components/student/SupervisorFeedbackCard.vue")['default']
+  StudentWeekLogSheet: typeof import("../../app/components/student/WeekLogSheet.vue")['default']
+  StudentWeekSelector: typeof import("../../app/components/student/WeekSelector.vue")['default']
+  StudentWeekSubmissionPanel: typeof import("../../app/components/student/WeekSubmissionPanel.vue")['default']
+  UiBaseBadge: typeof import("../../app/components/ui/BaseBadge.vue")['default']
+  UiBaseButton: typeof import("../../app/components/ui/BaseButton.vue")['default']
+  UiBaseCard: typeof import("../../app/components/ui/BaseCard.vue")['default']
+  UiEmptyState: typeof import("../../app/components/ui/EmptyState.vue")['default']
+  UiProgressBar: typeof import("../../app/components/ui/ProgressBar.vue")['default']
+  UiStatCard: typeof import("../../app/components/ui/StatCard.vue")['default']
+  UiToastContainer: typeof import("../../app/components/ui/ToastContainer.vue")['default']
   NuxtWelcome: typeof import("../../node_modules/nuxt/dist/app/components/welcome.vue")['default']
   NuxtLayout: typeof import("../../node_modules/nuxt/dist/app/components/nuxt-layout")['default']
   NuxtErrorBoundary: typeof import("../../node_modules/nuxt/dist/app/components/nuxt-error-boundary.vue")['default']
@@ -38,6 +58,26 @@ interface _GlobalComponents {
   Html: typeof import("../../node_modules/nuxt/dist/head/runtime/components")['Html']
   Body: typeof import("../../node_modules/nuxt/dist/head/runtime/components")['Body']
   NuxtIsland: typeof import("../../node_modules/nuxt/dist/app/components/nuxt-island")['default']
+  LazyLayoutApiConfigModal: LazyComponent<typeof import("../../app/components/layout/ApiConfigModal.vue")['default']>
+  LazyLayoutAppBreadcrumbs: LazyComponent<typeof import("../../app/components/layout/AppBreadcrumbs.vue")['default']>
+  LazyLayoutAppHeader: LazyComponent<typeof import("../../app/components/layout/AppHeader.vue")['default']>
+  LazyLayoutAppSidebar: LazyComponent<typeof import("../../app/components/layout/AppSidebar.vue")['default']>
+  LazyLayoutThemeToggle: LazyComponent<typeof import("../../app/components/layout/ThemeToggle.vue")['default']>
+  LazyLayoutUserMenu: LazyComponent<typeof import("../../app/components/layout/UserMenu.vue")['default']>
+  LazyStudentDayNavigator: LazyComponent<typeof import("../../app/components/student/DayNavigator.vue")['default']>
+  LazyStudentLogEntryEditor: LazyComponent<typeof import("../../app/components/student/LogEntryEditor.vue")['default']>
+  LazyStudentMediaUploader: LazyComponent<typeof import("../../app/components/student/MediaUploader.vue")['default']>
+  LazyStudentSupervisorFeedbackCard: LazyComponent<typeof import("../../app/components/student/SupervisorFeedbackCard.vue")['default']>
+  LazyStudentWeekLogSheet: LazyComponent<typeof import("../../app/components/student/WeekLogSheet.vue")['default']>
+  LazyStudentWeekSelector: LazyComponent<typeof import("../../app/components/student/WeekSelector.vue")['default']>
+  LazyStudentWeekSubmissionPanel: LazyComponent<typeof import("../../app/components/student/WeekSubmissionPanel.vue")['default']>
+  LazyUiBaseBadge: LazyComponent<typeof import("../../app/components/ui/BaseBadge.vue")['default']>
+  LazyUiBaseButton: LazyComponent<typeof import("../../app/components/ui/BaseButton.vue")['default']>
+  LazyUiBaseCard: LazyComponent<typeof import("../../app/components/ui/BaseCard.vue")['default']>
+  LazyUiEmptyState: LazyComponent<typeof import("../../app/components/ui/EmptyState.vue")['default']>
+  LazyUiProgressBar: LazyComponent<typeof import("../../app/components/ui/ProgressBar.vue")['default']>
+  LazyUiStatCard: LazyComponent<typeof import("../../app/components/ui/StatCard.vue")['default']>
+  LazyUiToastContainer: LazyComponent<typeof import("../../app/components/ui/ToastContainer.vue")['default']>
   LazyNuxtWelcome: LazyComponent<typeof import("../../node_modules/nuxt/dist/app/components/welcome.vue")['default']>
   LazyNuxtLayout: LazyComponent<typeof import("../../node_modules/nuxt/dist/app/components/nuxt-layout")['default']>
   LazyNuxtErrorBoundary: LazyComponent<typeof import("../../node_modules/nuxt/dist/app/components/nuxt-error-boundary.vue")['default']>

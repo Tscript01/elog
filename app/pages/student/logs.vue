@@ -1,54 +1,83 @@
 <template>
   <div class="space-y-8">
-    <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
-      <div class="border-b border-slate-200 pb-4 text-center dark:border-slate-800">
-        <span class="rounded bg-slate-100 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:bg-slate-800 dark:text-slate-300">
-          Form ITF / SIWES-08
-        </span>
-        <h2 class="mt-2 text-xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-2xl">
-          Students Industrial Work Experience Scheme - Daily Record of Activities
-        </h2>
-        <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
-          Official Electronic Logbook Entry
+    <!-- Header Banner -->
+    <div class="flex flex-col justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900 sm:flex-row sm:items-center">
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="rounded bg-blue-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-blue-700 dark:bg-blue-950/60 dark:text-blue-300">
+            Form ITF / SIWES-08
+          </span>
+          <span class="text-xs text-slate-400">•</span>
+          <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">
+            Official Daily Entry
+          </span>
+        </div>
+        <h1 class="mt-1.5 text-xl font-black tracking-tight text-slate-900 dark:text-white sm:text-2xl">
+          Daily Record of Technical Activities
+        </h1>
+        <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+          State precise technical tasks, equipment operated, methodologies observed, or engineering procedures performed.
         </p>
       </div>
 
-      <div
-        v-if="feedbackMessage"
-        :class="[
-          'mt-4 flex items-center gap-2 rounded-lg p-3.5 text-xs',
-          isSuccess
-            ? 'border border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-400'
-            : 'border border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900/50 dark:bg-rose-950/30 dark:text-rose-400'
-        ]"
-      >
-        <CheckCircle2 v-if="isSuccess" class="h-4 w-4 shrink-0" />
-        <AlertCircle v-else class="h-4 w-4 shrink-0" />
-        <span>{{ feedbackMessage }}</span>
+      <div class="flex items-center gap-3">
+        <span class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs font-semibold text-slate-700 dark:border-slate-800 dark:bg-slate-800 dark:text-slate-300">
+          <CalendarDays class="h-4 w-4 text-blue-600 dark:text-blue-400" />
+          <span>Week {{ selectedWeek }} of {{ placementStore.maxWeeks }}</span>
+        </span>
+      </div>
+    </div>
+
+    <!-- Feedback Banners -->
+    <div
+      v-if="feedbackMessage"
+      :class="[
+        'flex items-center gap-2.5 rounded-xl p-4 text-xs font-medium',
+        isSuccess
+          ? 'border border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-400'
+          : 'border border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900/50 dark:bg-rose-950/30 dark:text-rose-400'
+      ]"
+    >
+      <CheckCircle2 v-if="isSuccess" class="h-4 w-4 shrink-0" />
+      <AlertCircle v-else class="h-4 w-4 shrink-0" />
+      <span>{{ feedbackMessage }}</span>
+    </div>
+
+    <div
+      v-if="dateError"
+      class="flex items-center gap-2.5 rounded-xl border border-rose-200 bg-rose-50 p-4 text-xs font-medium text-rose-700 dark:border-rose-900/50 dark:bg-rose-950/30 dark:text-rose-400"
+    >
+      <AlertCircle class="h-4 w-4 shrink-0" />
+      <span>{{ dateError }}</span>
+    </div>
+
+    <!-- Entry Creation Form Card -->
+    <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900 sm:p-8">
+      <div class="flex items-center gap-2.5 border-b border-slate-100 pb-4 dark:border-slate-800">
+        <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200">
+          <PenTool class="h-4 w-4" />
+        </div>
+        <div>
+          <h2 class="text-sm font-bold text-slate-900 dark:text-white">New Activity Entry</h2>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400">Specify period, technical summary, and any schematics or blueprints</p>
+        </div>
       </div>
 
-      <div
-        v-if="dateError"
-        class="mt-4 flex items-center gap-2 rounded-lg border border-rose-200 bg-rose-50 p-3 text-xs text-rose-700 dark:border-rose-900/50 dark:bg-rose-950/30 dark:text-rose-400"
-      >
-        <AlertCircle class="h-4 w-4 shrink-0" />
-        <span>{{ dateError }}</span>
-      </div>
-
-      <form class="mt-6 space-y-6" @submit.prevent="submitLog">
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <form class="mt-6 space-y-6" @submit.prevent="submitEntry">
+        <!-- Date / Period Selectors -->
+        <div class="grid grid-cols-1 gap-5 sm:grid-cols-3">
           <div>
             <label for="log-week" class="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-              Training Week (1 - {{ maxWeeks }})
+              Training Week (1 - {{ placementStore.maxWeeks }})
             </label>
             <select
               id="log-week"
               v-model.number="selectedWeek"
               required
-              class="mt-1.5 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-2xs focus:border-slate-900 focus:outline-hidden dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+              class="mt-1.5 block w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-2xs transition focus:border-slate-900 focus:outline-hidden dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:border-blue-500"
               @change="onWeekOrDayChanged"
             >
-              <option v-for="w in maxWeeks" :key="w" :value="w">
+              <option v-for="w in placementStore.maxWeeks" :key="w" :value="w">
                 Week {{ w }}
               </option>
             </select>
@@ -62,7 +91,7 @@
               id="log-day"
               v-model="selectedDay"
               required
-              class="mt-1.5 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-2xs focus:border-slate-900 focus:outline-hidden dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+              class="mt-1.5 block w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-2xs transition focus:border-slate-900 focus:outline-hidden dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:border-blue-500"
               @change="onWeekOrDayChanged"
             >
               <option v-for="day in availableDays" :key="day" :value="day">
@@ -80,41 +109,53 @@
               v-model="formDate"
               type="date"
               required
-              :min="minDateString"
-              :max="maxDateString"
-              class="mt-1.5 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-2xs focus:border-slate-900 focus:outline-hidden dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+              :min="placementStartDate"
+              :max="placementEndDate"
+              class="mt-1.5 block w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-2xs transition focus:border-slate-900 focus:outline-hidden dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:border-blue-500"
               @change="onDateManualInput"
             />
           </div>
         </div>
 
+        <!-- Description Textarea -->
         <div>
-          <label for="log-description" class="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-            Description of Work Done
-          </label>
-          <div class="mt-2 overflow-hidden rounded-lg border border-slate-300 dark:border-slate-700">
+          <div class="flex items-center justify-between">
+            <label for="log-description" class="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+              Detailed Description of Work Done / Experience Gained
+            </label>
+            <span class="text-[11px] text-slate-400">Technical engineering log format</span>
+          </div>
+          <div class="mt-2 overflow-hidden rounded-xl border border-slate-300 transition focus-within:border-slate-900 focus-within:ring-1 focus-within:ring-slate-900 dark:border-slate-700 dark:focus-within:border-blue-500 dark:focus-within:ring-blue-500">
             <textarea
               id="log-description"
               v-model="description"
-              rows="7"
+              rows="6"
               required
-              placeholder="Record technical tasks performed on this date..."
-              class="block w-full resize-y bg-white p-3 text-sm text-slate-900 focus:outline-hidden dark:bg-slate-800 dark:text-white"
+              placeholder="State precise technical tasks, equipment operated, methodologies observed, or engineering procedures performed on this date..."
+              class="block w-full resize-y bg-white p-4 text-sm leading-relaxed text-slate-900 focus:outline-hidden dark:bg-slate-800/80 dark:text-white dark:placeholder:text-slate-500"
             ></textarea>
           </div>
         </div>
 
-        <div class="rounded-lg border border-slate-200 bg-slate-50/50 p-4 dark:border-slate-800 dark:bg-slate-800/40">
+        <!-- Visual Attachment Section -->
+        <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-4.5 dark:border-slate-800 dark:bg-slate-800/40">
           <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <span class="text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-              Attachment (Optional)
-            </span>
-            <div class="flex rounded-md bg-slate-200 p-0.5 dark:bg-slate-700">
+            <div>
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                Supporting Visual Attachment (Optional)
+              </span>
+              <p class="text-[11px] text-slate-500 dark:text-slate-400">
+                Schematic blueprint, circuit diagram, code snippet, or technical apparatus photo.
+              </p>
+            </div>
+            <div class="flex rounded-lg bg-slate-200/80 p-0.5 dark:bg-slate-700">
               <button
                 type="button"
                 :class="[
-                  'rounded px-2.5 py-1 text-xs font-medium',
-                  attachmentMode === 'url' ? 'bg-white text-slate-900 shadow-2xs dark:bg-slate-900 dark:text-white' : 'text-slate-600 dark:text-slate-300'
+                  'rounded-md px-3 py-1 text-xs font-semibold transition',
+                  attachmentMode === 'url'
+                    ? 'bg-white text-slate-900 shadow-2xs dark:bg-slate-900 dark:text-white'
+                    : 'text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white'
                 ]"
                 @click="attachmentMode = 'url'"
               >
@@ -123,8 +164,10 @@
               <button
                 type="button"
                 :class="[
-                  'rounded px-2.5 py-1 text-xs font-medium',
-                  attachmentMode === 'file' ? 'bg-white text-slate-900 shadow-2xs dark:bg-slate-900 dark:text-white' : 'text-slate-600 dark:text-slate-300'
+                  'rounded-md px-3 py-1 text-xs font-semibold transition',
+                  attachmentMode === 'file'
+                    ? 'bg-white text-slate-900 shadow-2xs dark:bg-slate-900 dark:text-white'
+                    : 'text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white'
                 ]"
                 @click="attachmentMode = 'file'"
               >
@@ -133,50 +176,109 @@
             </div>
           </div>
 
-          <div v-if="attachmentMode === 'url'" class="mt-3">
+          <div v-if="attachmentMode === 'url'" class="mt-3.5">
             <input
               v-model="imageUrlInput"
               type="url"
-              placeholder="https://..."
-              class="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900 focus:outline-hidden dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+              placeholder="https://example.com/images/schematic.png"
+              class="block w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2 text-xs text-slate-900 shadow-2xs focus:border-slate-900 focus:outline-hidden dark:border-slate-700 dark:bg-slate-800 dark:text-white"
             />
           </div>
 
-          <div v-else class="mt-3">
+          <div v-else class="mt-3.5 space-y-2">
             <input
               ref="fileInputRef"
               type="file"
               accept="image/*"
-              class="block w-full text-xs text-slate-500"
+              class="block w-full cursor-pointer text-xs text-slate-500 file:mr-3 file:rounded-lg file:border-0 file:bg-slate-900 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white hover:file:bg-slate-800 dark:text-slate-400 dark:file:bg-blue-600 dark:hover:file:bg-blue-500"
               @change="handleFileChange"
             />
+            <p v-if="selectedFile" class="text-[11px] text-slate-500 dark:text-slate-400">
+              Selected: {{ selectedFile.name }} ({{ (selectedFile.size / 1024).toFixed(1) }} KB)
+            </p>
           </div>
         </div>
 
-        <div class="flex justify-end gap-3 border-t border-slate-200 pt-4 dark:border-slate-800">
+        <!-- Form Submit Bar -->
+        <div class="flex items-center justify-end gap-3 border-t border-slate-100 pt-5 dark:border-slate-800">
           <button
             type="submit"
-            :disabled="isSubmitting || !!dateError"
-            class="inline-flex items-center rounded-lg bg-slate-900 px-5 py-2.5 text-xs font-semibold text-white hover:bg-slate-800 disabled:opacity-50 dark:bg-blue-600"
+            :disabled="dailyLogsStore.isSubmitting || !!dateError"
+            class="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-5 py-2.5 text-xs font-semibold text-white shadow-xs transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-blue-600 dark:hover:bg-blue-500"
           >
-            <Loader2 v-if="isSubmitting" class="mr-2 h-4 w-4 animate-spin" />
-            <span>{{ isSubmitting ? 'Saving...' : 'Submit Daily Log' }}</span>
+            <Loader2 v-if="dailyLogsStore.isSubmitting" class="h-4 w-4 animate-spin" />
+            <Plus v-else class="h-4 w-4" />
+            <span>{{ dailyLogsStore.isSubmitting ? 'Recording Entry...' : 'Submit Daily Log Entry' }}</span>
           </button>
         </div>
       </form>
     </div>
 
-    <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
-      <h3 class="text-sm font-semibold text-slate-900 dark:text-white">Logged Activities for Week {{ selectedWeek }}</h3>
-      <div v-if="isLoadingLogs" class="py-6 text-center text-xs text-slate-500">Loading...</div>
-      <div v-else-if="weekLogs.length === 0" class="py-6 text-center text-xs text-slate-500">No logs for this week.</div>
-      <div v-else class="mt-4 divide-y divide-slate-100 dark:divide-slate-800">
-        <div v-for="item in weekLogs" :key="item.id" class="py-3">
-          <div class="flex justify-between text-xs font-bold text-slate-900 dark:text-white">
-        <span>{{ formatLogDate(item.log_date) }}</span>
-            <span class="uppercase text-slate-500">{{ item.status }}</span>
+    <!-- Weekly Recorded Entries Section -->
+    <div class="rounded-2xl border border-slate-200 bg-white shadow-xs dark:border-slate-800 dark:bg-slate-900">
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-6 py-4.5 dark:border-slate-800">
+        <div>
+          <h3 class="text-sm font-bold text-slate-900 dark:text-white">Logged Activities for Week {{ selectedWeek }}</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Review individual daily recordings submitted for supervisor endorsement</p>
+        </div>
+        <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+          {{ currentWeekLogs.length }} of 6 days logged
+        </span>
+      </div>
+
+      <div v-if="dailyLogsStore.isLoading" class="flex flex-col items-center justify-center py-12 text-slate-400">
+        <Loader2 class="h-6 w-6 animate-spin text-blue-600" />
+        <p class="mt-2 text-xs">Loading activities for Week {{ selectedWeek }}...</p>
+      </div>
+
+      <div v-else-if="currentWeekLogs.length === 0" class="p-10 text-center">
+        <FileText class="mx-auto h-10 w-10 text-slate-300 dark:text-slate-600" />
+        <p class="mt-2 text-sm font-bold text-slate-900 dark:text-white">No activities recorded yet</p>
+        <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+          You have not recorded any technical activities for Week {{ selectedWeek }}. Use the form above to post an entry.
+        </p>
+      </div>
+
+      <div v-else class="divide-y divide-slate-100 dark:divide-slate-800">
+        <div
+          v-for="item in currentWeekLogs"
+          :key="item.id"
+          class="flex flex-col justify-between gap-4 p-5.5 transition hover:bg-slate-50/50 sm:flex-row sm:items-center dark:hover:bg-slate-800/40"
+        >
+          <div class="min-w-0 flex-1">
+            <div class="flex flex-wrap items-center gap-2.5">
+              <span class="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-bold text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                {{ formatDisplayDate(item.log_date) }}
+              </span>
+              <span
+                :class="[
+                  'rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider',
+                  item.status === 'APPROVED'
+                    ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-400'
+                    : item.status === 'DECLINED' || item.status === 'DRAFT'
+                      ? 'bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-400'
+                      : 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-400'
+                ]"
+              >
+                {{ item.status || 'PENDING' }}
+              </span>
+            </div>
+            <p class="mt-2 text-xs leading-relaxed text-slate-700 dark:text-slate-300">
+              {{ item.description }}
+            </p>
           </div>
-          <p class="mt-1 text-xs text-slate-700 dark:text-slate-300">{{ item.description }}</p>
+
+          <div v-if="item.image_url" class="shrink-0">
+            <a
+              :href="item.image_url"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-blue-600 shadow-2xs transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-blue-400 dark:hover:bg-slate-700"
+            >
+              <ExternalLink class="h-3.5 w-3.5" />
+              <span>Attachment</span>
+            </a>
+          </div>
         </div>
       </div>
     </div>
@@ -185,42 +287,23 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import axios from 'axios'
-import { useRuntimeConfig, useCookie } from '#app'
-import { AlertCircle, CheckCircle2, Loader2 } from 'lucide-vue-next'
+import {
+  AlertCircle,
+  CheckCircle2,
+  Loader2,
+  CalendarDays,
+  PenTool,
+  Plus,
+  FileText,
+  ExternalLink
+} from 'lucide-vue-next'
+import { useDailyLogsStore } from '~/stores/dailyLogs'
+import { usePlacementStore } from '~/stores/placement'
 
 definePageMeta({ layout: 'student' })
 
-export interface LogRecord {
-  id: string
-  placement_id: string
-  weekly_submission_id?: string | null
-  week_no: number
-  status?: 'pending' | 'approved' | 'rejected'
-  log_date: string // ISO string from backend (e.g. "2026-06-15T00:00:00.000Z")
-  description: string
-  image_url?: string | null
-  created_timestamp?: string
-}
-
-export interface PaginationMeta {
-  total: number
-  page: number
-  limit: number
-  totalPages: number
-  hasNextPage: boolean
-  hasPrevPage: boolean
-}
-
-export interface LogsApiResponse {
-  pagination: PaginationMeta
-  data: LogRecord[]
-}
-
-const config = useRuntimeConfig()
-const apiBase = (config.public.apiBaseUrl as string) || ''
-const cloudinaryCloudName = (config.public.cloudinaryCloudName as string) || ''
-const cloudinaryUploadPreset = (config.public.cloudinaryUploadPreset as string) || 'wedparty'
+const dailyLogsStore = useDailyLogsStore()
+const placementStore = usePlacementStore()
 
 const availableDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 const dayOffsets: Record<string, number> = {
@@ -232,10 +315,6 @@ const dayOffsets: Record<string, number> = {
   Saturday: 5
 }
 
-const placementStartDate = ref<string>('')
-const placementEndDate = ref<string>('')
-const maxWeeks = ref<number>(24)
-
 const selectedWeek = ref<number>(1)
 const selectedDay = ref<string>('Monday')
 const formDate = ref<string>('')
@@ -245,16 +324,13 @@ const attachmentMode = ref<'url' | 'file'>('url')
 const selectedFile = ref<File | null>(null)
 const fileInputRef = ref<HTMLInputElement | null>(null)
 
-const isSubmitting = ref(false)
-const isLoadingLogs = ref(false)
 const feedbackMessage = ref('')
 const isSuccess = ref(false)
 const dateError = ref('')
-const allLogs = ref<LogRecord[]>([])
 
-const minDateString = computed(() => placementStartDate.value || undefined)
-const maxDateString = computed(() => placementEndDate.value || undefined)
-const weekLogs = computed(() => allLogs.value.filter((l) => l.week_no === selectedWeek.value))
+const placementStartDate = computed(() => placementStore.placement?.start_date?.split('T')[0] || undefined)
+const placementEndDate = computed(() => placementStore.placement?.end_date?.split('T')[0] || undefined)
+const currentWeekLogs = computed(() => dailyLogsStore.logsByWeek(selectedWeek.value))
 
 const parseDateUTC = (str: string): Date => {
   const [y, m, d] = str.split('-').map(Number)
@@ -276,6 +352,17 @@ const getWeekMondayUTC = (date: Date): Date => {
   return copy
 }
 
+const formatDisplayDate = (dateStr: string): string => {
+  const raw = dateStr.split('T')[0] ?? ''
+  const [y, m, d] = raw.split('-').map(Number)
+  return new Intl.DateTimeFormat('en-US', {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    timeZone: 'UTC'
+  }).format(new Date(Date.UTC(y!, m! - 1, d)))
+}
+
 const computeDateFromWeekAndDay = () => {
   dateError.value = ''
   if (!placementStartDate.value) return
@@ -284,38 +371,20 @@ const computeDateFromWeekAndDay = () => {
   const baseMonday = getWeekMondayUTC(startUTC)
 
   const targetDate = new Date(baseMonday.getTime())
-  const totalDaysToAdd = (selectedWeek.value - 1) * 7 + (dayOffsets[selectedDay.value] ?? 0)
-  targetDate.setUTCDate(targetDate.getUTCDate() + totalDaysToAdd)
+  const daysToAdd = (selectedWeek.value - 1) * 7 + (dayOffsets[selectedDay.value] ?? 0)
+  targetDate.setUTCDate(targetDate.getUTCDate() + daysToAdd)
 
   const dateStr = formatUTC(targetDate)
 
   if (placementEndDate.value && dateStr > placementEndDate.value) {
-    dateError.value = 'Calculated date is beyond the placement duration.'
+    dateError.value = 'Calculated date exceeds the placement end date.'
   }
 
   formDate.value = dateStr
 }
-const formatLogDate = (dateStr: string | Date): string => {
-  if (!dateStr) return ''
-  
-  // Extract YYYY-MM-DD directly if it's an ISO string to prevent local timezone offsets
-  const rawDate = typeof dateStr === 'string' ? (dateStr.split('T')[0] ?? '') : (dateStr.toISOString().split('T')[0] ?? '')
-  const [year, month, day] = rawDate.split('-').map(Number)
-
-  const date = new Date(Date.UTC(year!, month! - 1, day!))
-
-  return new Intl.DateTimeFormat('en-US', {
-    weekday: 'short',
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    timeZone: 'UTC'
-  }).format(date)
-}
 
 const onWeekOrDayChanged = () => {
   computeDateFromWeekAndDay()
-  loadLogs()
 }
 
 const onDateManualInput = () => {
@@ -326,7 +395,7 @@ const onDateManualInput = () => {
   const dayOfWeek = inputDate.getUTCDay()
 
   if (dayOfWeek === 0) {
-    dateError.value = 'Entries on Sunday are not permitted.'
+    dateError.value = 'Entries on Sunday are not permitted under SIWES rules.'
     return
   }
 
@@ -334,13 +403,14 @@ const onDateManualInput = () => {
     dateError.value = `Date cannot precede training start (${placementStartDate.value}).`
     return
   }
+
   if (placementEndDate.value && formDate.value > placementEndDate.value) {
-    dateError.value = `Date exceeds training end date (${placementEndDate.value}).`
+    dateError.value = `Date exceeds training end (${placementEndDate.value}).`
     return
   }
 
   const daysArr = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-  selectedDay.value = daysArr[dayOfWeek]!
+  selectedDay.value = daysArr[dayOfWeek] ?? ''
 
   if (placementStartDate.value) {
     const startMonday = getWeekMondayUTC(parseDateUTC(placementStartDate.value))
@@ -348,43 +418,9 @@ const onDateManualInput = () => {
     const diffMs = inputMonday.getTime() - startMonday.getTime()
     const computedWeek = Math.floor(diffMs / (7 * 24 * 60 * 60 * 1000)) + 1
 
-    if (computedWeek >= 1 && computedWeek <= maxWeeks.value) {
+    if (computedWeek >= 1 && computedWeek <= placementStore.maxWeeks) {
       selectedWeek.value = computedWeek
     }
-  }
-
-  loadLogs()
-}
-
-const getAuthHeaders = () => {
-  const token = useCookie<string | null>('auth_token').value
-  return token ? { Authorization: `Bearer ${token}` } : {}
-}
-
-const fetchPlacementDetails = async () => {
-  try {
-    const res = await axios.get<{ start_date: string; end_date: string }>(`${apiBase}/placements/current`, {
-      headers: getAuthHeaders(),
-      withCredentials: true
-    })
-console.log(res);    
-
-    if (res.data?.start_date && res.data?.end_date) {
-      placementStartDate.value = res.data.start_date.split('T')[0] ?? ''
-      placementEndDate.value = res.data.end_date.split('T')[0] ?? ''
-
-      const start = parseDateUTC(placementStartDate.value)
-      const end = parseDateUTC(placementEndDate.value)
-      const diffWeeks = Math.ceil((end.getTime() - start.getTime()) / (7 * 24 * 60 * 60 * 1000))
-      maxWeeks.value = Math.max(diffWeeks, 1)
-
-      computeDateFromWeekAndDay()
-    }
-  } catch {
-    const today = new Date()
-    placementStartDate.value = formatUTC(today)
-    placementEndDate.value = formatUTC(new Date(today.getTime() + 168 * 24 * 60 * 60 * 1000))
-    computeDateFromWeekAndDay()
   }
 }
 
@@ -393,84 +429,45 @@ const handleFileChange = (e: Event) => {
   selectedFile.value = target.files?.[0] || null
 }
 
-const uploadToCloudinary = async (file: File): Promise<string> => {
-  const formData = new FormData()
-  formData.append('file', file)
-  formData.append('upload_preset', 'wedparty') // Use the preset from .env
-
-  const res = await axios.post<{ secure_url: string }>(
-    `https://api.cloudinary.com/v1_1/${cloudinaryCloudName}/image/upload`,
-    formData
-  )
-  return res.data.secure_url
-}
-
-const loadLogs = async () => {
-  isLoadingLogs.value = true
-  try {
-    const res = await axios.get<LogsApiResponse>(`${apiBase}/logs`, {
-      headers: getAuthHeaders(),
-      withCredentials: true,
-      params: { week: selectedWeek.value }
-    })
-    
-    allLogs.value = Array.isArray(res.data.data) ? res.data.data : []
-  } catch {
-    allLogs.value = []
-  } finally {
-    isLoadingLogs.value = false
-  }
-}
-
-const submitLog = async () => {
+const submitEntry = async () => {
   if (dateError.value) return
-  isSubmitting.value = true
   feedbackMessage.value = ''
 
   try {
-    let resolvedImageUrl: string | undefined = undefined
+    let finalImageUrl: string | undefined = undefined
 
     if (attachmentMode.value === 'url' && imageUrlInput.value.trim()) {
-      resolvedImageUrl = imageUrlInput.value.trim()
+      finalImageUrl = imageUrlInput.value.trim()
     } else if (attachmentMode.value === 'file' && selectedFile.value) {
-      resolvedImageUrl = await uploadToCloudinary(selectedFile.value)
+      finalImageUrl = await dailyLogsStore.uploadImageToCloudinary(selectedFile.value)
     }
 
-    await axios.post(
-      `${apiBase}/logs`,
-      {
-        log_date: formDate.value,
-        week_no: selectedWeek.value,
-        description: description.value.trim(),
-        ...(resolvedImageUrl ? { image_url: resolvedImageUrl } : {})
-      },
-      {
-        headers: {
-          ...getAuthHeaders(),
-          'Content-Type': 'application/json'
-        },
-        withCredentials: true
-      }
-    )
+    await dailyLogsStore.createLog({
+      log_date: formDate.value,
+      week_no: selectedWeek.value,
+      description: description.value.trim(),
+      ...(finalImageUrl ? { image_url: finalImageUrl } : {})
+    })
 
     isSuccess.value = true
-    feedbackMessage.value = 'Entry saved successfully.'
+    feedbackMessage.value = 'Daily log entry recorded successfully.'
     description.value = ''
     imageUrlInput.value = ''
     selectedFile.value = null
     if (fileInputRef.value) fileInputRef.value.value = ''
-
-    await loadLogs()
   } catch (err: any) {
     isSuccess.value = false
-    feedbackMessage.value = err.response?.data?.message || 'Failed to submit log entry.'
-  } finally {
-    isSubmitting.value = false
+    feedbackMessage.value = err.message || 'Failed to submit log entry.'
   }
 }
 
 onMounted(async () => {
-  await fetchPlacementDetails()
-  await loadLogs()
+  if (!placementStore.placement) {
+    await placementStore.fetchPlacement()
+  }
+  computeDateFromWeekAndDay()
+  if (dailyLogsStore.logs.length === 0) {
+    await dailyLogsStore.fetchLogs({ limit: 150 })
+  }
 })
 </script>

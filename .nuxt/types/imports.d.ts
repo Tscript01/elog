@@ -2,18 +2,33 @@
 export {}
 declare global {
   const $fetch: typeof import('../fetch.mjs').$fetch
+  const AUTH_PROFILE_COOKIE: typeof import('../../app/utils/auth').AUTH_PROFILE_COOKIE
+  const AUTH_TOKEN_COOKIE: typeof import('../../app/utils/auth').AUTH_TOKEN_COOKIE
+  const AUTH_USER_COOKIE: typeof import('../../app/utils/auth').AUTH_USER_COOKIE
+  const ApiError: typeof import('../../app/utils/storage').ApiError
   const abortNavigation: typeof import('../../node_modules/nuxt/dist/app/composables/router').abortNavigation
+  const acceptHMRUpdate: typeof import('../../node_modules/@pinia/nuxt/dist/runtime/composables').acceptHMRUpdate
+  const addDays: typeof import('../../app/utils/date').addDays
   const addRouteMiddleware: typeof import('../../node_modules/nuxt/dist/app/composables/router').addRouteMiddleware
+  const apiDirectForgotPassword: typeof import('../../app/utils/auth').apiDirectForgotPassword
+  const apiDirectLogin: typeof import('../../app/utils/auth').apiDirectLogin
+  const apiDirectRegister: typeof import('../../app/utils/auth').apiDirectRegister
+  const apiDirectResetPassword: typeof import('../../app/utils/auth').apiDirectResetPassword
   const callOnce: typeof import('../../node_modules/nuxt/dist/app/composables/once').callOnce
   const cancelIdleCallback: typeof import('../../node_modules/nuxt/dist/app/compat/idle-callback').cancelIdleCallback
+  const checkIsAuthenticated: typeof import('../../app/utils/auth').checkIsAuthenticated
+  const clearDirectAuth: typeof import('../../app/utils/auth').clearDirectAuth
   const clearError: typeof import('../../node_modules/nuxt/dist/app/composables/error').clearError
   const clearNuxtData: typeof import('../../node_modules/nuxt/dist/app/composables/asyncData').clearNuxtData
   const clearNuxtState: typeof import('../../node_modules/nuxt/dist/app/composables/state').clearNuxtState
+  const clearanceLabel: typeof import('../../app/utils/status').clearanceLabel
+  const clearanceTone: typeof import('../../app/utils/status').clearanceTone
   const computed: typeof import('vue').computed
   const createError: typeof import('../../node_modules/nuxt/dist/app/composables/error').createError
   const createUseAsyncData: typeof import('../../node_modules/nuxt/dist/app/composables/asyncData').createUseAsyncData
   const createUseFetch: typeof import('../../node_modules/nuxt/dist/app/composables/fetch').createUseFetch
   const customRef: typeof import('vue').customRef
+  const daysBetween: typeof import('../../app/utils/date').daysBetween
   const defineAppConfig: typeof import('../../node_modules/nuxt/dist/app/nuxt').defineAppConfig
   const defineAsyncComponent: typeof import('vue').defineAsyncComponent
   const defineComponent: typeof import('vue').defineComponent
@@ -26,12 +41,24 @@ declare global {
   const definePayloadPlugin: typeof import('../../node_modules/nuxt/dist/app/nuxt').definePayloadPlugin
   const definePayloadReducer: typeof import('../../node_modules/nuxt/dist/app/composables/payload').definePayloadReducer
   const definePayloadReviver: typeof import('../../node_modules/nuxt/dist/app/composables/payload').definePayloadReviver
+  const defineStore: typeof import('../../node_modules/@pinia/nuxt/dist/runtime/composables').defineStore
   const effect: typeof import('vue').effect
   const effectScope: typeof import('vue').effectScope
+  const formatDayLabel: typeof import('../../app/utils/date').formatDayLabel
+  const formatDayNumber: typeof import('../../app/utils/date').formatDayNumber
+  const formatLongDate: typeof import('../../app/utils/date').formatLongDate
+  const formatRange: typeof import('../../app/utils/date').formatRange
+  const formatShortDate: typeof import('../../app/utils/date').formatShortDate
+  const getApiBase: typeof import('../../app/utils/auth').getApiBase
   const getAppManifest: typeof import('../../node_modules/nuxt/dist/app/composables/manifest').getAppManifest
   const getCurrentInstance: typeof import('vue').getCurrentInstance
   const getCurrentScope: typeof import('vue').getCurrentScope
+  const getCustomApiBaseUrl: typeof import('../../app/utils/storage').getCustomApiBaseUrl
+  const getDirectToken: typeof import('../../app/utils/auth').getDirectToken
+  const getDirectUser: typeof import('../../app/utils/auth').getDirectUser
+  const getLiveModeSetting: typeof import('../../app/utils/storage').getLiveModeSetting
   const getRouteRules: typeof import('../../node_modules/nuxt/dist/app/composables/manifest').getRouteRules
+  const getStoredToken: typeof import('../../app/utils/storage').getStoredToken
   const h: typeof import('vue').h
   const hasInjectionContext: typeof import('vue').hasInjectionContext
   const inject: typeof import('vue').inject
@@ -82,13 +109,21 @@ declare global {
   const reloadNuxtApp: typeof import('../../node_modules/nuxt/dist/app/composables/chunk').reloadNuxtApp
   const requestIdleCallback: typeof import('../../node_modules/nuxt/dist/app/compat/idle-callback').requestIdleCallback
   const resolveComponent: typeof import('vue').resolveComponent
+  const saveDirectAuth: typeof import('../../app/utils/auth').saveDirectAuth
+  const setCustomApiBaseUrl: typeof import('../../app/utils/storage').setCustomApiBaseUrl
   const setInterval: typeof import('../../node_modules/nuxt/dist/app/compat/interval').setInterval
+  const setLiveModeSetting: typeof import('../../app/utils/storage').setLiveModeSetting
   const setPageLayout: typeof import('../../node_modules/nuxt/dist/app/composables/router').setPageLayout
   const setResponseStatus: typeof import('../../node_modules/nuxt/dist/app/composables/ssr').setResponseStatus
+  const setStoredToken: typeof import('../../app/utils/storage').setStoredToken
   const shallowReactive: typeof import('vue').shallowReactive
   const shallowReadonly: typeof import('vue').shallowReadonly
   const shallowRef: typeof import('vue').shallowRef
   const showError: typeof import('../../node_modules/nuxt/dist/app/composables/error').showError
+  const storeToRefs: typeof import('../../node_modules/@pinia/nuxt/dist/runtime/composables').storeToRefs
+  const submissionLabel: typeof import('../../app/utils/status').submissionLabel
+  const submissionTone: typeof import('../../app/utils/status').submissionTone
+  const toDate: typeof import('../../app/utils/date').toDate
   const toRaw: typeof import('vue').toRaw
   const toRef: typeof import('vue').toRef
   const toRefs: typeof import('vue').toRefs
@@ -98,12 +133,15 @@ declare global {
   const unref: typeof import('vue').unref
   const updateAppConfig: typeof import('../../node_modules/nuxt/dist/app/config').updateAppConfig
   const useAnnouncer: typeof import('../../node_modules/nuxt/dist/app/composables/announcer').useAnnouncer
+  const useApi: typeof import('../../app/composables/useApi').useApi
   const useAppConfig: typeof import('../../node_modules/nuxt/dist/app/config').useAppConfig
   const useAsyncData: typeof import('../../node_modules/nuxt/dist/app/composables/asyncData').useAsyncData
   const useAttrs: typeof import('vue').useAttrs
+  const useAuthStore: typeof import('../../app/stores/auth').useAuthStore
   const useCookie: typeof import('../../node_modules/nuxt/dist/app/composables/cookie').useCookie
   const useCssModule: typeof import('vue').useCssModule
   const useCssVars: typeof import('vue').useCssVars
+  const useDailyLogsStore: typeof import('../../app/stores/dailyLogs').useDailyLogsStore
   const useError: typeof import('../../node_modules/nuxt/dist/app/composables/error').useError
   const useFetch: typeof import('../../node_modules/nuxt/dist/app/composables/fetch').useFetch
   const useHead: typeof import('../../node_modules/nuxt/dist/app/composables/head').useHead
@@ -115,9 +153,12 @@ declare global {
   const useLazyFetch: typeof import('../../node_modules/nuxt/dist/app/composables/fetch').useLazyFetch
   const useLink: typeof import('../../node_modules/nuxt/node_modules/vue-router').useLink
   const useLoadingIndicator: typeof import('../../node_modules/nuxt/dist/app/composables/loading-indicator').useLoadingIndicator
+  const useLogbookStore: typeof import('../../app/stores/logbook').useLogbookStore
   const useModel: typeof import('vue').useModel
   const useNuxtApp: typeof import('../../node_modules/nuxt/dist/app/nuxt').useNuxtApp
   const useNuxtData: typeof import('../../node_modules/nuxt/dist/app/composables/asyncData').useNuxtData
+  const usePinia: typeof import('../../node_modules/@pinia/nuxt/dist/runtime/composables').usePinia
+  const usePlacementStore: typeof import('../../app/stores/placement').usePlacementStore
   const usePreviewMode: typeof import('../../node_modules/nuxt/dist/app/composables/preview').usePreviewMode
   const useRequestEvent: typeof import('../../node_modules/nuxt/dist/app/composables/ssr').useRequestEvent
   const useRequestFetch: typeof import('../../node_modules/nuxt/dist/app/composables/ssr').useRequestFetch
@@ -177,11 +218,14 @@ declare global {
   const useServerHead: typeof import('../../node_modules/nuxt/dist/app/composables/head').useServerHead
   const useServerHeadSafe: typeof import('../../node_modules/nuxt/dist/app/composables/head').useServerHeadSafe
   const useServerSeoMeta: typeof import('../../node_modules/nuxt/dist/app/composables/head').useServerSeoMeta
+  const useSessionStore: typeof import('../../app/stores/session').useSessionStore
   const useShadowRoot: typeof import('vue').useShadowRoot
   const useSlots: typeof import('vue').useSlots
   const useState: typeof import('../../node_modules/nuxt/dist/app/composables/state').useState
   const useTemplateRef: typeof import('vue').useTemplateRef
+  const useToast: typeof import('../../app/composables/useToast').useToast
   const useTransitionState: typeof import('vue').useTransitionState
+  const useUiStore: typeof import('../../app/stores/ui').useUiStore
   const watch: typeof import('vue').watch
   const watchEffect: typeof import('vue').watchEffect
   const watchPostEffect: typeof import('vue').watchPostEffect
@@ -201,24 +245,63 @@ declare global {
   // @ts-ignore
   export type { PageMeta } from '../../node_modules/nuxt/dist/app/composables/pages'
   import('../../node_modules/nuxt/dist/app/composables/pages')
+  // @ts-ignore
+  export type { ToastTone, ToastMessage } from '../../app/composables/useToast'
+  import('../../app/composables/useToast')
+  // @ts-ignore
+  export type { DirectLoginResponse, DirectRegisterPayload } from '../../app/utils/auth'
+  import('../../app/utils/auth')
+  // @ts-ignore
+  export type { BadgeTone } from '../../app/utils/status'
+  import('../../app/utils/status')
+  // @ts-ignore
+  export type { ApiError, ApiResponse } from '../../app/utils/storage'
+  import('../../app/utils/storage')
+  // @ts-ignore
+  export type { UserProfile } from '../../app/stores/auth'
+  import('../../app/stores/auth')
+  // @ts-ignore
+  export type { LogRecord, PaginationMeta } from '../../app/stores/dailyLogs'
+  import('../../app/stores/dailyLogs')
+  // @ts-ignore
+  export type { SubmissionStatus, WeeklySubmissionRecord } from '../../app/stores/logbook'
+  import('../../app/stores/logbook')
+  // @ts-ignore
+  export type { PlacementData } from '../../app/stores/placement'
+  import('../../app/stores/placement')
 }
 // for vue template auto import
 import { UnwrapRef } from 'vue'
 declare module 'vue' {
   interface ComponentCustomProperties {
     readonly $fetch: UnwrapRef<typeof import('../fetch.mjs')['$fetch']>
+    readonly AUTH_PROFILE_COOKIE: UnwrapRef<typeof import('../../app/utils/auth')['AUTH_PROFILE_COOKIE']>
+    readonly AUTH_TOKEN_COOKIE: UnwrapRef<typeof import('../../app/utils/auth')['AUTH_TOKEN_COOKIE']>
+    readonly AUTH_USER_COOKIE: UnwrapRef<typeof import('../../app/utils/auth')['AUTH_USER_COOKIE']>
+    readonly ApiError: UnwrapRef<typeof import('../../app/utils/storage')['ApiError']>
     readonly abortNavigation: UnwrapRef<typeof import('../../node_modules/nuxt/dist/app/composables/router')['abortNavigation']>
+    readonly acceptHMRUpdate: UnwrapRef<typeof import('../../node_modules/@pinia/nuxt/dist/runtime/composables')['acceptHMRUpdate']>
+    readonly addDays: UnwrapRef<typeof import('../../app/utils/date')['addDays']>
     readonly addRouteMiddleware: UnwrapRef<typeof import('../../node_modules/nuxt/dist/app/composables/router')['addRouteMiddleware']>
+    readonly apiDirectForgotPassword: UnwrapRef<typeof import('../../app/utils/auth')['apiDirectForgotPassword']>
+    readonly apiDirectLogin: UnwrapRef<typeof import('../../app/utils/auth')['apiDirectLogin']>
+    readonly apiDirectRegister: UnwrapRef<typeof import('../../app/utils/auth')['apiDirectRegister']>
+    readonly apiDirectResetPassword: UnwrapRef<typeof import('../../app/utils/auth')['apiDirectResetPassword']>
     readonly callOnce: UnwrapRef<typeof import('../../node_modules/nuxt/dist/app/composables/once')['callOnce']>
     readonly cancelIdleCallback: UnwrapRef<typeof import('../../node_modules/nuxt/dist/app/compat/idle-callback')['cancelIdleCallback']>
+    readonly checkIsAuthenticated: UnwrapRef<typeof import('../../app/utils/auth')['checkIsAuthenticated']>
+    readonly clearDirectAuth: UnwrapRef<typeof import('../../app/utils/auth')['clearDirectAuth']>
     readonly clearError: UnwrapRef<typeof import('../../node_modules/nuxt/dist/app/composables/error')['clearError']>
     readonly clearNuxtData: UnwrapRef<typeof import('../../node_modules/nuxt/dist/app/composables/asyncData')['clearNuxtData']>
     readonly clearNuxtState: UnwrapRef<typeof import('../../node_modules/nuxt/dist/app/composables/state')['clearNuxtState']>
+    readonly clearanceLabel: UnwrapRef<typeof import('../../app/utils/status')['clearanceLabel']>
+    readonly clearanceTone: UnwrapRef<typeof import('../../app/utils/status')['clearanceTone']>
     readonly computed: UnwrapRef<typeof import('vue')['computed']>
     readonly createError: UnwrapRef<typeof import('../../node_modules/nuxt/dist/app/composables/error')['createError']>
     readonly createUseAsyncData: UnwrapRef<typeof import('../../node_modules/nuxt/dist/app/composables/asyncData')['createUseAsyncData']>
     readonly createUseFetch: UnwrapRef<typeof import('../../node_modules/nuxt/dist/app/composables/fetch')['createUseFetch']>
     readonly customRef: UnwrapRef<typeof import('vue')['customRef']>
+    readonly daysBetween: UnwrapRef<typeof import('../../app/utils/date')['daysBetween']>
     readonly defineAppConfig: UnwrapRef<typeof import('../../node_modules/nuxt/dist/app/nuxt')['defineAppConfig']>
     readonly defineAsyncComponent: UnwrapRef<typeof import('vue')['defineAsyncComponent']>
     readonly defineComponent: UnwrapRef<typeof import('vue')['defineComponent']>
@@ -231,12 +314,24 @@ declare module 'vue' {
     readonly definePayloadPlugin: UnwrapRef<typeof import('../../node_modules/nuxt/dist/app/nuxt')['definePayloadPlugin']>
     readonly definePayloadReducer: UnwrapRef<typeof import('../../node_modules/nuxt/dist/app/composables/payload')['definePayloadReducer']>
     readonly definePayloadReviver: UnwrapRef<typeof import('../../node_modules/nuxt/dist/app/composables/payload')['definePayloadReviver']>
+    readonly defineStore: UnwrapRef<typeof import('../../node_modules/@pinia/nuxt/dist/runtime/composables')['defineStore']>
     readonly effect: UnwrapRef<typeof import('vue')['effect']>
     readonly effectScope: UnwrapRef<typeof import('vue')['effectScope']>
+    readonly formatDayLabel: UnwrapRef<typeof import('../../app/utils/date')['formatDayLabel']>
+    readonly formatDayNumber: UnwrapRef<typeof import('../../app/utils/date')['formatDayNumber']>
+    readonly formatLongDate: UnwrapRef<typeof import('../../app/utils/date')['formatLongDate']>
+    readonly formatRange: UnwrapRef<typeof import('../../app/utils/date')['formatRange']>
+    readonly formatShortDate: UnwrapRef<typeof import('../../app/utils/date')['formatShortDate']>
+    readonly getApiBase: UnwrapRef<typeof import('../../app/utils/auth')['getApiBase']>
     readonly getAppManifest: UnwrapRef<typeof import('../../node_modules/nuxt/dist/app/composables/manifest')['getAppManifest']>
     readonly getCurrentInstance: UnwrapRef<typeof import('vue')['getCurrentInstance']>
     readonly getCurrentScope: UnwrapRef<typeof import('vue')['getCurrentScope']>
+    readonly getCustomApiBaseUrl: UnwrapRef<typeof import('../../app/utils/storage')['getCustomApiBaseUrl']>
+    readonly getDirectToken: UnwrapRef<typeof import('../../app/utils/auth')['getDirectToken']>
+    readonly getDirectUser: UnwrapRef<typeof import('../../app/utils/auth')['getDirectUser']>
+    readonly getLiveModeSetting: UnwrapRef<typeof import('../../app/utils/storage')['getLiveModeSetting']>
     readonly getRouteRules: UnwrapRef<typeof import('../../node_modules/nuxt/dist/app/composables/manifest')['getRouteRules']>
+    readonly getStoredToken: UnwrapRef<typeof import('../../app/utils/storage')['getStoredToken']>
     readonly h: UnwrapRef<typeof import('vue')['h']>
     readonly hasInjectionContext: UnwrapRef<typeof import('vue')['hasInjectionContext']>
     readonly inject: UnwrapRef<typeof import('vue')['inject']>
@@ -287,13 +382,21 @@ declare module 'vue' {
     readonly reloadNuxtApp: UnwrapRef<typeof import('../../node_modules/nuxt/dist/app/composables/chunk')['reloadNuxtApp']>
     readonly requestIdleCallback: UnwrapRef<typeof import('../../node_modules/nuxt/dist/app/compat/idle-callback')['requestIdleCallback']>
     readonly resolveComponent: UnwrapRef<typeof import('vue')['resolveComponent']>
+    readonly saveDirectAuth: UnwrapRef<typeof import('../../app/utils/auth')['saveDirectAuth']>
+    readonly setCustomApiBaseUrl: UnwrapRef<typeof import('../../app/utils/storage')['setCustomApiBaseUrl']>
     readonly setInterval: UnwrapRef<typeof import('../../node_modules/nuxt/dist/app/compat/interval')['setInterval']>
+    readonly setLiveModeSetting: UnwrapRef<typeof import('../../app/utils/storage')['setLiveModeSetting']>
     readonly setPageLayout: UnwrapRef<typeof import('../../node_modules/nuxt/dist/app/composables/router')['setPageLayout']>
     readonly setResponseStatus: UnwrapRef<typeof import('../../node_modules/nuxt/dist/app/composables/ssr')['setResponseStatus']>
+    readonly setStoredToken: UnwrapRef<typeof import('../../app/utils/storage')['setStoredToken']>
     readonly shallowReactive: UnwrapRef<typeof import('vue')['shallowReactive']>
     readonly shallowReadonly: UnwrapRef<typeof import('vue')['shallowReadonly']>
     readonly shallowRef: UnwrapRef<typeof import('vue')['shallowRef']>
     readonly showError: UnwrapRef<typeof import('../../node_modules/nuxt/dist/app/composables/error')['showError']>
+    readonly storeToRefs: UnwrapRef<typeof import('../../node_modules/@pinia/nuxt/dist/runtime/composables')['storeToRefs']>
+    readonly submissionLabel: UnwrapRef<typeof import('../../app/utils/status')['submissionLabel']>
+    readonly submissionTone: UnwrapRef<typeof import('../../app/utils/status')['submissionTone']>
+    readonly toDate: UnwrapRef<typeof import('../../app/utils/date')['toDate']>
     readonly toRaw: UnwrapRef<typeof import('vue')['toRaw']>
     readonly toRef: UnwrapRef<typeof import('vue')['toRef']>
     readonly toRefs: UnwrapRef<typeof import('vue')['toRefs']>
@@ -303,12 +406,15 @@ declare module 'vue' {
     readonly unref: UnwrapRef<typeof import('vue')['unref']>
     readonly updateAppConfig: UnwrapRef<typeof import('../../node_modules/nuxt/dist/app/config')['updateAppConfig']>
     readonly useAnnouncer: UnwrapRef<typeof import('../../node_modules/nuxt/dist/app/composables/announcer')['useAnnouncer']>
+    readonly useApi: UnwrapRef<typeof import('../../app/composables/useApi')['useApi']>
     readonly useAppConfig: UnwrapRef<typeof import('../../node_modules/nuxt/dist/app/config')['useAppConfig']>
     readonly useAsyncData: UnwrapRef<typeof import('../../node_modules/nuxt/dist/app/composables/asyncData')['useAsyncData']>
     readonly useAttrs: UnwrapRef<typeof import('vue')['useAttrs']>
+    readonly useAuthStore: UnwrapRef<typeof import('../../app/stores/auth')['useAuthStore']>
     readonly useCookie: UnwrapRef<typeof import('../../node_modules/nuxt/dist/app/composables/cookie')['useCookie']>
     readonly useCssModule: UnwrapRef<typeof import('vue')['useCssModule']>
     readonly useCssVars: UnwrapRef<typeof import('vue')['useCssVars']>
+    readonly useDailyLogsStore: UnwrapRef<typeof import('../../app/stores/dailyLogs')['useDailyLogsStore']>
     readonly useError: UnwrapRef<typeof import('../../node_modules/nuxt/dist/app/composables/error')['useError']>
     readonly useFetch: UnwrapRef<typeof import('../../node_modules/nuxt/dist/app/composables/fetch')['useFetch']>
     readonly useHead: UnwrapRef<typeof import('../../node_modules/nuxt/dist/app/composables/head')['useHead']>
@@ -320,9 +426,12 @@ declare module 'vue' {
     readonly useLazyFetch: UnwrapRef<typeof import('../../node_modules/nuxt/dist/app/composables/fetch')['useLazyFetch']>
     readonly useLink: UnwrapRef<typeof import('../../node_modules/nuxt/node_modules/vue-router')['useLink']>
     readonly useLoadingIndicator: UnwrapRef<typeof import('../../node_modules/nuxt/dist/app/composables/loading-indicator')['useLoadingIndicator']>
+    readonly useLogbookStore: UnwrapRef<typeof import('../../app/stores/logbook')['useLogbookStore']>
     readonly useModel: UnwrapRef<typeof import('vue')['useModel']>
     readonly useNuxtApp: UnwrapRef<typeof import('../../node_modules/nuxt/dist/app/nuxt')['useNuxtApp']>
     readonly useNuxtData: UnwrapRef<typeof import('../../node_modules/nuxt/dist/app/composables/asyncData')['useNuxtData']>
+    readonly usePinia: UnwrapRef<typeof import('../../node_modules/@pinia/nuxt/dist/runtime/composables')['usePinia']>
+    readonly usePlacementStore: UnwrapRef<typeof import('../../app/stores/placement')['usePlacementStore']>
     readonly usePreviewMode: UnwrapRef<typeof import('../../node_modules/nuxt/dist/app/composables/preview')['usePreviewMode']>
     readonly useRequestEvent: UnwrapRef<typeof import('../../node_modules/nuxt/dist/app/composables/ssr')['useRequestEvent']>
     readonly useRequestFetch: UnwrapRef<typeof import('../../node_modules/nuxt/dist/app/composables/ssr')['useRequestFetch']>
@@ -382,11 +491,14 @@ declare module 'vue' {
     readonly useServerHead: UnwrapRef<typeof import('../../node_modules/nuxt/dist/app/composables/head')['useServerHead']>
     readonly useServerHeadSafe: UnwrapRef<typeof import('../../node_modules/nuxt/dist/app/composables/head')['useServerHeadSafe']>
     readonly useServerSeoMeta: UnwrapRef<typeof import('../../node_modules/nuxt/dist/app/composables/head')['useServerSeoMeta']>
+    readonly useSessionStore: UnwrapRef<typeof import('../../app/stores/session')['useSessionStore']>
     readonly useShadowRoot: UnwrapRef<typeof import('vue')['useShadowRoot']>
     readonly useSlots: UnwrapRef<typeof import('vue')['useSlots']>
     readonly useState: UnwrapRef<typeof import('../../node_modules/nuxt/dist/app/composables/state')['useState']>
     readonly useTemplateRef: UnwrapRef<typeof import('vue')['useTemplateRef']>
+    readonly useToast: UnwrapRef<typeof import('../../app/composables/useToast')['useToast']>
     readonly useTransitionState: UnwrapRef<typeof import('vue')['useTransitionState']>
+    readonly useUiStore: UnwrapRef<typeof import('../../app/stores/ui')['useUiStore']>
     readonly watch: UnwrapRef<typeof import('vue')['watch']>
     readonly watchEffect: UnwrapRef<typeof import('vue')['watchEffect']>
     readonly watchPostEffect: UnwrapRef<typeof import('vue')['watchPostEffect']>
