@@ -130,7 +130,7 @@ const handleLogin = async () => {
   errorMessage.value = ''
   isLoading.value = true
 
-  const url = `${apiBase}/auth/login`
+  const url = `${apiBase}/api/auth/login`
 
   try {
     const response = await axios.post<LoginResponse>(
