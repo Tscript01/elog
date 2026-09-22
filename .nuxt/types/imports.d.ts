@@ -246,7 +246,7 @@ declare global {
   export type { PageMeta } from '../../node_modules/nuxt/dist/app/composables/pages'
   import('../../node_modules/nuxt/dist/app/composables/pages')
   // @ts-ignore
-  export type { ToastTone, ToastMessage } from '../../app/composables/useToast'
+  export type { ToastItem } from '../../app/composables/useToast'
   import('../../app/composables/useToast')
   // @ts-ignore
   export type { DirectLoginResponse, DirectRegisterPayload } from '../../app/utils/auth'

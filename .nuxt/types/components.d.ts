@@ -14,6 +14,7 @@ type HydrationStrategies = {
 type LazyComponent<T> = DefineComponent<HydrationStrategies, {}, {}, {}, {}, {}, {}, { hydrated: () => void }> & T
 
 interface _GlobalComponents {
+  AppToast: typeof import("../../app/components/AppToast.vue")['default']
   LayoutApiConfigModal: typeof import("../../app/components/layout/ApiConfigModal.vue")['default']
   LayoutAppBreadcrumbs: typeof import("../../app/components/layout/AppBreadcrumbs.vue")['default']
   LayoutAppHeader: typeof import("../../app/components/layout/AppHeader.vue")['default']
@@ -58,6 +59,7 @@ interface _GlobalComponents {
   Html: typeof import("../../node_modules/nuxt/dist/head/runtime/components")['Html']
   Body: typeof import("../../node_modules/nuxt/dist/head/runtime/components")['Body']
   NuxtIsland: typeof import("../../node_modules/nuxt/dist/app/components/nuxt-island")['default']
+  LazyAppToast: LazyComponent<typeof import("../../app/components/AppToast.vue")['default']>
   LazyLayoutApiConfigModal: LazyComponent<typeof import("../../app/components/layout/ApiConfigModal.vue")['default']>
   LazyLayoutAppBreadcrumbs: LazyComponent<typeof import("../../app/components/layout/AppBreadcrumbs.vue")['default']>
   LazyLayoutAppHeader: LazyComponent<typeof import("../../app/components/layout/AppHeader.vue")['default']>

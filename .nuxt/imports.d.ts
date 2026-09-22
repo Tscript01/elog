@@ -34,7 +34,7 @@ export { setInterval } from '#app/compat/interval';
 export { definePageMeta, PageMeta } from '#app/composables/pages';
 export { defineLazyHydrationComponent } from '#app/composables/lazy-hydration';
 export { useApi } from '../app/composables/useApi';
-export { useToast, ToastTone, ToastMessage } from '../app/composables/useToast';
+export { useToast, ToastItem } from '../app/composables/useToast';
 export { AUTH_TOKEN_COOKIE, AUTH_USER_COOKIE, AUTH_PROFILE_COOKIE, getApiBase, checkIsAuthenticated, getDirectToken, getDirectUser, saveDirectAuth, clearDirectAuth, apiDirectLogin, apiDirectRegister, apiDirectForgotPassword, apiDirectResetPassword, DirectLoginResponse, DirectRegisterPayload } from '../app/utils/auth';
 export { toDate, addDays, formatLongDate, formatShortDate, formatDayLabel, formatDayNumber, formatRange, daysBetween } from '../app/utils/date';
 export { submissionTone, submissionLabel, clearanceTone, clearanceLabel, BadgeTone } from '../app/utils/status';

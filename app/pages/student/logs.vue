@@ -23,8 +23,22 @@
       <div class="flex items-center gap-3">
         <span class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs font-semibold text-slate-700 dark:border-slate-800 dark:bg-slate-800 dark:text-slate-300">
           <CalendarDays class="h-4 w-4 text-blue-600 dark:text-blue-400" />
-          <span>Week {{ selectedWeek }} of {{ placementStore.maxWeeks }}</span>
+          <span>Active: Week {{ currentActiveWeek }}</span>
         </span>
+      </div>
+    </div>
+
+    <!-- Week Lock Warning Banner -->
+    <div
+      v-if="isWeekLocked"
+      class="flex items-center gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-xs text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-300"
+    >
+      <Lock class="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
+      <div>
+        <p class="font-bold">Week {{ selectedWeek }} Logging Closed</p>
+        <p class="mt-0.5 text-[11px] text-amber-800/80 dark:text-amber-300/80">
+          Per SIWES regulations, activities can only be submitted during their active calendar period. You are currently in Week {{ currentActiveWeek }}.
+        </p>
       </div>
     </div>
 
@@ -68,7 +82,7 @@
         <div class="grid grid-cols-1 gap-5 sm:grid-cols-3">
           <div>
             <label for="log-week" class="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-              Training Week (1 - {{ placementStore.maxWeeks }})
+              Training Week (Current: Week {{ currentActiveWeek }})
             </label>
             <select
               id="log-week"
@@ -78,7 +92,7 @@
               @change="onWeekOrDayChanged"
             >
               <option v-for="w in placementStore.maxWeeks" :key="w" :value="w">
-                Week {{ w }}
+                Week {{ w }} {{ w === currentActiveWeek ? '(Current Active)' : (w < currentActiveWeek ? '(Locked - Past)' : '(Upcoming)') }}
               </option>
             </select>
           </div>
@@ -91,7 +105,8 @@
               id="log-day"
               v-model="selectedDay"
               required
-              class="mt-1.5 block w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-2xs transition focus:border-slate-900 focus:outline-hidden dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:border-blue-500"
+              :disabled="isWeekLocked"
+              class="mt-1.5 block w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-2xs transition focus:border-slate-900 focus:outline-hidden disabled:bg-slate-100 disabled:text-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:disabled:bg-slate-800/50"
               @change="onWeekOrDayChanged"
             >
               <option v-for="day in availableDays" :key="day" :value="day">
@@ -109,9 +124,10 @@
               v-model="formDate"
               type="date"
               required
-              :min="placementStartDate"
-              :max="placementEndDate"
-              class="mt-1.5 block w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-2xs transition focus:border-slate-900 focus:outline-hidden dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:border-blue-500"
+              :disabled="isWeekLocked"
+              :min="allowedMinDate"
+              :max="allowedMaxDate"
+              class="mt-1.5 block w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-2xs transition focus:border-slate-900 focus:outline-hidden disabled:bg-slate-100 disabled:text-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:disabled:bg-slate-800/50"
               @change="onDateManualInput"
             />
           </div>
@@ -131,8 +147,9 @@
               v-model="description"
               rows="6"
               required
+              :disabled="isWeekLocked"
               placeholder="State precise technical tasks, equipment operated, methodologies observed, or engineering procedures performed on this date..."
-              class="block w-full resize-y bg-white p-4 text-sm leading-relaxed text-slate-900 focus:outline-hidden dark:bg-slate-800/80 dark:text-white dark:placeholder:text-slate-500"
+              class="block w-full resize-y bg-white p-4 text-sm leading-relaxed text-slate-900 focus:outline-hidden disabled:bg-slate-100 disabled:text-slate-400 dark:bg-slate-800/80 dark:text-white dark:disabled:bg-slate-800/50 dark:placeholder:text-slate-500"
             ></textarea>
           </div>
         </div>
@@ -151,6 +168,7 @@
             <div class="flex rounded-lg bg-slate-200/80 p-0.5 dark:bg-slate-700">
               <button
                 type="button"
+                :disabled="isWeekLocked"
                 :class="[
                   'rounded-md px-3 py-1 text-xs font-semibold transition',
                   attachmentMode === 'url'
@@ -163,6 +181,7 @@
               </button>
               <button
                 type="button"
+                :disabled="isWeekLocked"
                 :class="[
                   'rounded-md px-3 py-1 text-xs font-semibold transition',
                   attachmentMode === 'file'
@@ -180,8 +199,9 @@
             <input
               v-model="imageUrlInput"
               type="url"
+              :disabled="isWeekLocked"
               placeholder="https://example.com/images/schematic.png"
-              class="block w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2 text-xs text-slate-900 shadow-2xs focus:border-slate-900 focus:outline-hidden dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+              class="block w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2 text-xs text-slate-900 shadow-2xs focus:border-slate-900 focus:outline-hidden disabled:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:disabled:bg-slate-800/50"
             />
           </div>
 
@@ -190,7 +210,8 @@
               ref="fileInputRef"
               type="file"
               accept="image/*"
-              class="block w-full cursor-pointer text-xs text-slate-500 file:mr-3 file:rounded-lg file:border-0 file:bg-slate-900 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white hover:file:bg-slate-800 dark:text-slate-400 dark:file:bg-blue-600 dark:hover:file:bg-blue-500"
+              :disabled="isWeekLocked"
+              class="block w-full cursor-pointer text-xs text-slate-500 file:mr-3 file:rounded-lg file:border-0 file:bg-slate-900 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white hover:file:bg-slate-800 disabled:opacity-50 dark:text-slate-400 dark:file:bg-blue-600 dark:hover:file:bg-blue-500"
               @change="handleFileChange"
             />
             <p v-if="selectedFile" class="text-[11px] text-slate-500 dark:text-slate-400">
@@ -203,12 +224,13 @@
         <div class="flex items-center justify-end gap-3 border-t border-slate-100 pt-5 dark:border-slate-800">
           <button
             type="submit"
-            :disabled="dailyLogsStore.isSubmitting || !!dateError"
+            :disabled="dailyLogsStore.isSubmitting || !!dateError || isWeekLocked"
             class="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-5 py-2.5 text-xs font-semibold text-white shadow-xs transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-blue-600 dark:hover:bg-blue-500"
           >
             <Loader2 v-if="dailyLogsStore.isSubmitting" class="h-4 w-4 animate-spin" />
+            <Lock v-else-if="isWeekLocked" class="h-4 w-4" />
             <Plus v-else class="h-4 w-4" />
-            <span>{{ dailyLogsStore.isSubmitting ? 'Recording Entry...' : 'Submit Daily Log Entry' }}</span>
+            <span>{{ isWeekLocked ? 'Week Locked' : (dailyLogsStore.isSubmitting ? 'Recording Entry...' : 'Submit Daily Log Entry') }}</span>
           </button>
         </div>
       </form>
@@ -295,7 +317,8 @@ import {
   PenTool,
   Plus,
   FileText,
-  ExternalLink
+  ExternalLink,
+  Lock
 } from 'lucide-vue-next'
 import { useDailyLogsStore } from '~/stores/dailyLogs'
 import { usePlacementStore } from '~/stores/placement'
@@ -363,6 +386,49 @@ const formatDisplayDate = (dateStr: string): string => {
   }).format(new Date(Date.UTC(y!, m! - 1, d)))
 }
 
+// Compute active week relative to current system date
+const currentActiveWeek = computed<number>(() => {
+  if (!placementStartDate.value) return 1
+  const startMonday = getWeekMondayUTC(parseDateUTC(placementStartDate.value))
+  const todayMonday = getWeekMondayUTC(new Date())
+  const diffMs = todayMonday.getTime() - startMonday.getTime()
+  if (diffMs < 0) return 1
+  const computedWeek = Math.floor(diffMs / (7 * 24 * 60 * 60 * 1000)) + 1
+  return Math.min(Math.max(computedWeek, 1), placementStore.maxWeeks || 24)
+})
+
+const isWeekLocked = computed<boolean>(() => {
+  return selectedWeek.value !== currentActiveWeek.value
+})
+
+const currentWeekMinDate = computed<string | undefined>(() => {
+  if (!placementStartDate.value) return undefined
+  const startMonday = getWeekMondayUTC(parseDateUTC(placementStartDate.value))
+  const weekStart = new Date(startMonday.getTime())
+  weekStart.setUTCDate(weekStart.getUTCDate() + (currentActiveWeek.value - 1) * 7)
+  return formatUTC(weekStart)
+})
+
+const currentWeekMaxDate = computed<string | undefined>(() => {
+  if (!placementStartDate.value) return undefined
+  const startMonday = getWeekMondayUTC(parseDateUTC(placementStartDate.value))
+  const weekEnd = new Date(startMonday.getTime())
+  weekEnd.setUTCDate(weekEnd.getUTCDate() + (currentActiveWeek.value - 1) * 7 + 5) // Mon-Sat
+  return formatUTC(weekEnd)
+})
+
+// Bound the datepicker between placement start and the active week's Saturday
+const allowedMinDate = computed<string | undefined>(() => {
+  return currentWeekMinDate.value || placementStartDate.value
+})
+
+const allowedMaxDate = computed<string | undefined>(() => {
+  if (currentWeekMaxDate.value && placementEndDate.value) {
+    return currentWeekMaxDate.value < placementEndDate.value ? currentWeekMaxDate.value : placementEndDate.value
+  }
+  return currentWeekMaxDate.value || placementEndDate.value
+})
+
 const computeDateFromWeekAndDay = () => {
   dateError.value = ''
   if (!placementStartDate.value) return
@@ -399,29 +465,18 @@ const onDateManualInput = () => {
     return
   }
 
-  if (placementStartDate.value && formDate.value < placementStartDate.value) {
-    dateError.value = `Date cannot precede training start (${placementStartDate.value}).`
+  if (currentWeekMinDate.value && formDate.value < currentWeekMinDate.value) {
+    dateError.value = `Date must fall within the current active week (from ${currentWeekMinDate.value}).`
     return
   }
 
-  if (placementEndDate.value && formDate.value > placementEndDate.value) {
-    dateError.value = `Date exceeds training end (${placementEndDate.value}).`
+  if (currentWeekMaxDate.value && formDate.value > currentWeekMaxDate.value) {
+    dateError.value = `Date cannot exceed current active week (to ${currentWeekMaxDate.value}).`
     return
   }
 
   const daysArr = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
   selectedDay.value = daysArr[dayOfWeek] ?? ''
-
-  if (placementStartDate.value) {
-    const startMonday = getWeekMondayUTC(parseDateUTC(placementStartDate.value))
-    const inputMonday = getWeekMondayUTC(inputDate)
-    const diffMs = inputMonday.getTime() - startMonday.getTime()
-    const computedWeek = Math.floor(diffMs / (7 * 24 * 60 * 60 * 1000)) + 1
-
-    if (computedWeek >= 1 && computedWeek <= placementStore.maxWeeks) {
-      selectedWeek.value = computedWeek
-    }
-  }
 }
 
 const handleFileChange = (e: Event) => {
@@ -430,6 +485,12 @@ const handleFileChange = (e: Event) => {
 }
 
 const submitEntry = async () => {
+  if (isWeekLocked.value) {
+    feedbackMessage.value = `You can only record logs for Week ${currentActiveWeek.value}.`
+    isSuccess.value = false
+    return
+  }
+
   if (dateError.value) return
   feedbackMessage.value = ''
 
@@ -465,7 +526,31 @@ onMounted(async () => {
   if (!placementStore.placement) {
     await placementStore.fetchPlacement()
   }
-  computeDateFromWeekAndDay()
+
+  // 1. Lock the initial week to the current active week
+  selectedWeek.value = currentActiveWeek.value
+
+  // 2. Initialize default date to today's date (or Saturday if today is Sunday)
+  const now = new Date()
+  const todayDayIndex = now.getDay()
+
+  if (todayDayIndex === 0) {
+    // If today is Sunday, default to Saturday of current week to avoid immediate validation error
+    const saturdayDate = new Date(now.getTime() - 24 * 60 * 60 * 1000)
+    formDate.value = formatUTC(saturdayDate)
+    selectedDay.value = 'Saturday'
+  } else {
+    formDate.value = formatUTC(now)
+    const daysArr = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+    selectedDay.value = daysArr[todayDayIndex] || 'Monday'
+  }
+
+  // Validate the initialized date against placement boundaries
+  if (placementStartDate.value && formDate.value < placementStartDate.value) {
+    formDate.value = placementStartDate.value
+    computeDateFromWeekAndDay()
+  }
+
   if (dailyLogsStore.logs.length === 0) {
     await dailyLogsStore.fetchLogs({ limit: 150 })
   }

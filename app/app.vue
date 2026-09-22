@@ -4,5 +4,6 @@
 
      <NuxtPage />
    </NuxtLayout>
+   <AppToast />
   </div>
 </template>

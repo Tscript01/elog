@@ -23,7 +23,7 @@ export default defineNuxtRouteMiddleware(async(to) => {
     admin: '/admin/dashboard'
   }
 
-  const isPublicRoute = to.path === '/login' || to.path === '/signup'
+  const isPublicRoute = to.path === '/login' || to.path === '/register'
 
   // 1. Unauthenticated handling
   if (!token) {
@@ -72,7 +72,7 @@ export default defineNuxtRouteMiddleware(async(to) => {
     if (
       returnTarget &&
       returnTarget !== '/login' &&
-      returnTarget !== '/signup' &&
+      returnTarget !== '/register' &&
       returnTarget !== '/' &&
       returnTarget.startsWith(`/${role}`) &&
       to.fullPath !== returnTarget
