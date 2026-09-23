@@ -119,7 +119,7 @@ const filteredWeeks = computed(() =>
 
 const parseDateUTC = (dateStr: string): Date => {
   const [year, month, day] = dateStr.split('-').map(Number)
-  return new Date(Date.UTC(year, month - 1, day))
+  return new Date(Date.UTC(year!, month! - 1, day))
 }
 
 const getWeekMondayUTC = (date: Date): Date => {
@@ -142,6 +142,7 @@ const getPeriodString = (weekNo: number): string => {
   if (!placementStore.placement?.start_date) return `Week ${weekNo}`
 
   const startDateClean = placementStore.placement.start_date.split('T')[0]
+  if (!startDateClean) return `Week ${weekNo}`
   const baseMonday = getWeekMondayUTC(parseDateUTC(startDateClean))
 
   const weekStart = new Date(baseMonday.getTime())
