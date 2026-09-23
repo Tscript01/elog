@@ -16,10 +16,6 @@ import { RuntimeConfig as UserRuntimeConfig, PublicRuntimeConfig as UserPublicRu
    cloudinaryUploadPreset: string,
 
    cloudinaryCloudName: string,
-
-   cloudinaryApiKey: string,
-
-   cloudinaryApiSecret: string,
   }
 declare module '@nuxt/schema' {
   interface RuntimeConfig extends UserRuntimeConfig {}

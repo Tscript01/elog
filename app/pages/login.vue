@@ -219,6 +219,13 @@ import {
 } from 'lucide-vue-next'
 import { useCookie, navigateTo, useRuntimeConfig } from '#app'
 import { useToast } from '~/composables/useToast'
+import { usePlacementStore } from '~/stores/placement'
+
+// ...
+const placementStore = usePlacementStore()
+
+// Right before navigating:
+
 
 definePageMeta({ layout: false })
 
@@ -311,6 +318,7 @@ const handleLogin = async () => {
         secure: process.env.NODE_ENV === 'production'
       })
       authCookie.value = token
+      placementStore.resetState()
 
       toast.success('Access Authorized', 'Workspace verified. Navigating to console...', 2000)
 

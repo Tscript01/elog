@@ -37,8 +37,7 @@ export const useDailyLogsStore = defineStore('dailyLogs', () => {
   const config = useRuntimeConfig()
   const apiBase = (config.public.apiBaseUrl as string) || ''
   const cloudinaryCloudName = (config.public.cloudinaryCloudName as string) || ''
-  const cloudinaryApiKey = (config.public.cloudinaryApiKey as string) || ''
-  const cloudinaryApiSecret = (config.public.cloudinaryApiSecret as string) || ''
+  const  cloudinaryUploadPreset = (config.public.cloudinaryUploadPreset as string) || ''
 
   const authStore = useAuthStore()
   const uiStore = useUiStore()
@@ -85,27 +84,45 @@ export const useDailyLogsStore = defineStore('dailyLogs', () => {
     }
   }
 
-  const uploadImageToCloudinary = async (file: File): Promise<string> => {
-    if (!cloudinaryCloudName || !cloudinaryApiKey || !cloudinaryApiSecret) {
-      throw new Error('Cloudinary credentials are not configured in runtimeConfig')
-    }
+  // Inside stores/dailyLogs.ts
 
-    const formData = new FormData()
-    formData.append('file', file)
+const uploadImageToCloudinary = async (file: File): Promise<string> => {
+  const config = useRuntimeConfig();
 
+  // Cloudinary credentials from runtimeConfig.public or fallback strings
+  const cloudName = (config.public.cloudinaryCloudName as string) || '';
+  const uploadPreset = (config.public.cloudinaryUploadPreset as string) || '';
+
+  if (!cloudName || !uploadPreset) {
+    throw new Error('Cloudinary configuration missing. Ensure cloud_name and upload_preset are defined.');
+  }
+
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('upload_preset', uploadPreset);
+
+  try {
     const res = await axios.post<{ secure_url: string }>(
-      `https://api.cloudinary.com/v1_1/${cloudinaryCloudName}/image/upload`,
+      `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
       formData,
       {
-        auth: {
-          username: cloudinaryApiKey,
-          password: cloudinaryApiSecret
-        }
+       
+        headers: {},
       }
-    )
+    );
 
-    return res.data.secure_url
+    return res.data.secure_url;
+  } catch (err: any) {
+    const cloudinaryMsg = err.response?.data?.error?.message;
+    console.error('Cloudinary API Error:', err.response?.data);
+
+    if (cloudinaryMsg) {
+      throw new Error(`Cloudinary Error: ${cloudinaryMsg}`);
+    }
+
+    throw new Error('Failed to upload image attachment to media server.');
   }
+};
 
   const createLog = async (payload: {
     log_date: string

@@ -654,9 +654,7 @@ const _inlineRuntimeConfig = {
   "public": {
     "apiBaseUrl": "https://elogbookserver2.vercel.app",
     "cloudinaryUploadPreset": "wedparty",
-    "cloudinaryCloudName": "dvrpodtdw",
-    "cloudinaryApiKey": "",
-    "cloudinaryApiSecret": ""
+    "cloudinaryCloudName": "dvrpodtdw"
   }
 };
 const envOptions = {

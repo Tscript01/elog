@@ -1,127 +1,130 @@
 <template>
-  <div class="min-h-screen bg-slate-50 text-slate-900 antialiased transition-colors duration-200 dark:bg-slate-950 dark:text-slate-50">
+  <div class="min-h-screen bg-slate-50 font-sans text-slate-900 antialiased transition-colors duration-200 dark:bg-slate-950 dark:text-slate-50">
     <!-- Unassigned Placement Enforcement Modal -->
     <div
       v-if="showPlacementModal"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md"
       role="dialog"
       aria-modal="true"
     >
-      <div class="w-full max-w-2xl rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-slate-800 dark:bg-slate-900 max-h-[90vh] overflow-y-auto">
-        <div class="flex items-center gap-3 border-b border-slate-100 pb-4 dark:border-slate-800">
-          <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-100 text-amber-600 dark:bg-amber-950/50 dark:text-amber-400">
+      <div class="relative w-full max-w-xl rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl transition-colors dark:border-slate-800 dark:bg-slate-900 sm:p-7 max-h-[92vh] overflow-y-auto">
+        <!-- Modal Header -->
+        <div class="flex items-start gap-4 border-b border-slate-100 pb-5 dark:border-slate-800">
+          <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400">
             <Building2 class="h-5 w-5" />
           </div>
           <div>
-            <h2 class="text-base font-bold text-slate-900 dark:text-white">SIWES Placement Registration Required</h2>
-            <p class="text-xs text-slate-500 dark:text-slate-400">You must register your hosting organization before accessing the logbook portal.</p>
+            <h2 class="text-base font-bold text-slate-900 dark:text-white">
+              SIWES Placement Registration
+            </h2>
+            <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+              Industrial Training Fund policy requires all trainees to document their primary organization and supervisor before log entries can be recorded.
+            </p>
           </div>
         </div>
 
-        <div
-          v-if="modalFeedback"
-          :class="[
-            'mt-4 flex items-center gap-2 rounded-lg p-3 text-xs',
-            modalSuccess
-              ? 'border border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-400'
-              : 'border border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900/50 dark:bg-rose-950/30 dark:text-rose-400'
-          ]"
-        >
-          <CheckCircle2 v-if="modalSuccess" class="h-4 w-4 shrink-0" />
-          <AlertCircle v-else class="h-4 w-4 shrink-0" />
-          <span>{{ modalFeedback }}</span>
-        </div>
-
+        <!-- Form -->
         <form class="mt-5 space-y-4" @submit.prevent="submitModalPlacement">
+          <!-- Company Name -->
           <div>
-            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-              Company / Organization Name<span class="text-rose-500">*</span>
+            <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
+              Host Organization / Company <span class="text-rose-500">*</span>
             </label>
             <input
-              v-model="modalForm.company_name"
+              v-model.trim="modalForm.company_name"
               type="text"
               required
               placeholder="e.g. Chevron Nigeria Limited"
-              class="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-2xs focus:border-slate-900 focus:outline-hidden dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+              class="mt-1.5 block w-full rounded-xl border border-slate-300 bg-slate-50/50 px-3.5 py-2.5 text-xs text-slate-900 placeholder-slate-400 transition-colors focus:border-blue-600 focus:bg-white focus:outline-none dark:border-slate-800 dark:bg-slate-950/80 dark:text-slate-100 dark:placeholder-slate-600 dark:focus:border-blue-500 dark:focus:bg-slate-950"
             />
           </div>
 
+          <!-- Physical Address -->
           <div>
-            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-              Company Physical Address
+            <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
+              Company Physical Location Address
             </label>
             <textarea
-              v-model="modalForm.company_address"
+              v-model.trim="modalForm.company_address"
               rows="2"
-              placeholder="Street address, city, state..."
-              class="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-2xs focus:border-slate-900 focus:outline-hidden dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-            ></textarea>
+              placeholder="Plot / Street address, City, State..."
+              class="mt-1.5 block w-full rounded-xl border border-slate-300 bg-slate-50/50 px-3.5 py-2 text-xs text-slate-900 placeholder-slate-400 transition-colors focus:border-blue-600 focus:bg-white focus:outline-none dark:border-slate-800 dark:bg-slate-950/80 dark:text-slate-100 dark:placeholder-slate-600 dark:focus:border-blue-500 dark:focus:bg-slate-950"
+            />
           </div>
 
           <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <!-- Company Email -->
             <div>
-              <label class="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                Company Email
+              <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
+                Company Official Email
               </label>
               <input
-                v-model="modalForm.company_email"
+                v-model.trim="modalForm.company_email"
                 type="email"
                 placeholder="contact@company.com"
-                class="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-2xs focus:border-slate-900 focus:outline-hidden dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                class="mt-1.5 block w-full rounded-xl border border-slate-300 bg-slate-50/50 px-3.5 py-2.5 text-xs text-slate-900 placeholder-slate-400 transition-colors focus:border-blue-600 focus:bg-white focus:outline-none dark:border-slate-800 dark:bg-slate-950/80 dark:text-slate-100 dark:placeholder-slate-600 dark:focus:border-blue-500 dark:focus:bg-slate-950"
               />
             </div>
+
+            <!-- Contact Phone -->
             <div>
-              <label class="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                Company Contact Phone
+              <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
+                Company Phone Number
               </label>
               <input
-                v-model="modalForm.company_contact"
+                v-model.trim="modalForm.company_contact"
                 type="tel"
                 placeholder="+234..."
-                class="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-2xs focus:border-slate-900 focus:outline-hidden dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                class="mt-1.5 block w-full rounded-xl border border-slate-300 bg-slate-50/50 px-3.5 py-2.5 text-xs text-slate-900 placeholder-slate-400 transition-colors focus:border-blue-600 focus:bg-white focus:outline-none dark:border-slate-800 dark:bg-slate-950/80 dark:text-slate-100 dark:placeholder-slate-600 dark:focus:border-blue-500 dark:focus:bg-slate-950"
               />
             </div>
           </div>
 
+          <!-- Supervisor Email -->
           <div>
-            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-              Industry Supervisor Email<span class="text-rose-500">*</span>
-            </label>
+            <div class="flex items-center justify-between">
+              <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
+                Industry-Based Supervisor Email <span class="text-rose-500">*</span>
+              </label>
+              <span class="text-[10px] text-slate-400">Used for weekly sign-offs</span>
+            </div>
             <input
-              v-model="modalForm.supervisor_email"
+              v-model.trim="modalForm.supervisor_email"
               type="email"
               required
               placeholder="supervisor@company.com"
-              class="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-2xs focus:border-slate-900 focus:outline-hidden dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+              class="mt-1.5 block w-full rounded-xl border border-slate-300 bg-slate-50/50 px-3.5 py-2.5 text-xs text-slate-900 placeholder-slate-400 transition-colors focus:border-blue-600 focus:bg-white focus:outline-none dark:border-slate-800 dark:bg-slate-950/80 dark:text-slate-100 dark:placeholder-slate-600 dark:focus:border-blue-500 dark:focus:bg-slate-950"
             />
           </div>
 
+          <!-- Start and End Date -->
           <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label class="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                Training Start Date<span class="text-rose-500">*</span>
+              <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
+                Training Commencement Date <span class="text-rose-500">*</span>
               </label>
               <input
                 v-model="modalForm.start_date"
                 type="date"
                 required
-                class="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-2xs focus:border-slate-900 focus:outline-hidden dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                class="mt-1.5 block w-full rounded-xl border border-slate-300 bg-slate-50/50 px-3.5 py-2 text-xs text-slate-900 transition-colors focus:border-blue-600 focus:bg-white focus:outline-none dark:border-slate-800 dark:bg-slate-950/80 dark:text-slate-100 dark:focus:border-blue-500 dark:focus:bg-slate-950"
               />
             </div>
             <div>
-              <label class="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                Training End Date<span class="text-rose-500">*</span>
+              <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
+                Training Expected Conclusion <span class="text-rose-500">*</span>
               </label>
               <input
                 v-model="modalForm.end_date"
                 type="date"
                 required
-                class="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-2xs focus:border-slate-900 focus:outline-hidden dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                class="mt-1.5 block w-full rounded-xl border border-slate-300 bg-slate-50/50 px-3.5 py-2 text-xs text-slate-900 transition-colors focus:border-blue-600 focus:bg-white focus:outline-none dark:border-slate-800 dark:bg-slate-950/80 dark:text-slate-100 dark:focus:border-blue-500 dark:focus:bg-slate-950"
               />
             </div>
           </div>
 
-          <div class="flex items-center justify-between border-t border-slate-100 pt-4 dark:border-slate-800">
+          <!-- Modal Actions -->
+          <div class="flex items-center justify-between border-t border-slate-100 pt-5 dark:border-slate-800">
             <button
               type="button"
               class="text-xs font-semibold text-rose-600 hover:underline dark:text-rose-400"
@@ -132,10 +135,10 @@
             <button
               type="submit"
               :disabled="isSubmittingModal"
-              class="inline-flex items-center gap-2 rounded-lg bg-slate-900 px-5 py-2.5 text-xs font-semibold text-white hover:bg-slate-800 disabled:opacity-50 dark:bg-blue-600 dark:hover:bg-blue-500"
+              class="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-xs font-semibold text-white shadow-md shadow-blue-500/25 transition-all hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-40"
             >
-              <Loader2 v-if="isSubmittingModal" class="h-4 w-4 animate-spin" />
-              <span>{{ isSubmittingModal ? 'Saving Placement...' : 'Submit Placement Record' }}</span>
+              <Loader2 v-if="isSubmittingModal" class="h-3.5 w-3.5 animate-spin" />
+              <span>{{ isSubmittingModal ? 'Registering Placement...' : 'Confirm Placement' }}</span>
             </button>
           </div>
         </form>
@@ -158,8 +161,8 @@
     >
       <div class="flex h-16 shrink-0 items-center justify-between border-b border-slate-200 px-6 dark:border-slate-800">
         <div class="flex items-center gap-2.5">
-          <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-900 text-sm font-black text-white shadow-xs dark:bg-blue-600">
-            E
+          <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 font-mono text-xs font-black tracking-tight text-white shadow-md shadow-blue-500/20">
+            ITF
           </div>
           <div>
             <span class="block text-sm font-extrabold tracking-tight text-slate-900 dark:text-white">Elog SIWES</span>
@@ -186,7 +189,7 @@
               <NuxtLink
                 :to="item.to"
                 class="group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
-                active-class="bg-slate-900 text-white hover:bg-slate-900 hover:text-white dark:bg-blue-600 dark:text-white dark:hover:bg-blue-600"
+                active-class="bg-blue-600 text-white hover:bg-blue-600 hover:text-white dark:bg-blue-600 dark:text-white dark:hover:bg-blue-600"
                 @click="isMobileMenuOpen = false"
               >
                 <component :is="item.icon" class="h-[18px] w-[18px] shrink-0" aria-hidden="true" />
@@ -210,8 +213,8 @@
           @click="toggleTheme"
         >
           <span class="flex items-center gap-3">
-            <Sun v-if="isDark" class="h-[18px] w-[18px]" />
-            <Moon v-else class="h-[18px] w-[18px]" />
+            <Sun v-if="isDark" class="h-[18px] w-[18px] text-amber-400" />
+            <Moon v-else class="h-[18px] w-[18px] text-slate-600" />
             <span>{{ isDark ? 'Light Theme' : 'Dark Theme' }}</span>
           </span>
           <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">{{ isDark ? 'Dark' : 'Light' }}</span>
@@ -231,8 +234,8 @@
     <!-- Desktop Sidebar -->
     <aside class="fixed inset-y-0 left-0 hidden w-64 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 lg:flex">
       <div class="flex h-16 shrink-0 items-center gap-2.5 border-b border-slate-200 px-6 dark:border-slate-800">
-        <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-900 text-sm font-black text-white shadow-xs dark:bg-blue-600">
-          E
+        <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 font-mono text-xs font-black tracking-tight text-white shadow-md shadow-blue-500/20">
+          ITF
         </div>
         <div>
           <span class="block text-sm font-extrabold tracking-tight text-slate-900 dark:text-white">Elog SIWES</span>
@@ -250,7 +253,7 @@
               <NuxtLink
                 :to="item.to"
                 class="group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
-                active-class="bg-slate-900 text-white hover:bg-slate-900 hover:text-white dark:bg-blue-600 dark:text-white dark:hover:bg-blue-600"
+                active-class="bg-blue-600 text-white hover:bg-blue-600 hover:text-white dark:bg-blue-600 dark:text-white dark:hover:bg-blue-600"
               >
                 <component :is="item.icon" class="h-[18px] w-[18px] shrink-0" aria-hidden="true" />
                 <span class="flex-1">{{ item.label }}</span>
@@ -273,8 +276,8 @@
           @click="toggleTheme"
         >
           <span class="flex items-center gap-3">
-            <Sun v-if="isDark" class="h-[18px] w-[18px]" />
-            <Moon v-else class="h-[18px] w-[18px]" />
+            <Sun v-if="isDark" class="h-[18px] w-[18px] text-amber-400" />
+            <Moon v-else class="h-[18px] w-[18px] text-slate-600" />
             <span>{{ isDark ? 'Light Theme' : 'Dark Theme' }}</span>
           </span>
           <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">{{ isDark ? 'Dark' : 'Light' }}</span>
@@ -320,13 +323,13 @@
             class="hidden rounded-lg border border-slate-200 p-2 text-slate-600 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 sm:flex"
             @click="toggleTheme"
           >
-            <Sun v-if="isDark" class="h-4 w-4" />
+            <Sun v-if="isDark" class="h-4 w-4 text-amber-400" />
             <Moon v-else class="h-4 w-4" />
           </button>
 
           <div class="hidden h-6 w-px bg-slate-200 dark:bg-slate-800 sm:block" />
 
-          <!-- Profile Dropdown Container -->
+          <!-- Profile Dropdown -->
           <div ref="profileDropdownRef" class="relative">
             <button
               type="button"
@@ -339,11 +342,11 @@
                 <p class="text-xs font-semibold text-slate-900 dark:text-white">
                   {{ userProfile.name || 'SIWES Trainee' }}
                 </p>
-                <p class="text-[10px] text-slate-500 dark:text-slate-400">
+                <p class="text-[10px] font-mono text-slate-500 dark:text-slate-400">
                   {{ userProfile.matric_no || 'Undergraduate' }}
                 </p>
               </div>
-              <div class="flex h-9 w-9 items-center justify-center rounded-full bg-slate-900 text-xs font-bold text-white shadow-xs dark:bg-blue-600">
+              <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 text-xs font-bold text-white shadow-xs">
                 {{ userInitials }}
               </div>
               <ChevronDown class="hidden h-4 w-4 text-slate-400 sm:block" />
@@ -442,11 +445,10 @@ import {
   Moon,
   Bell,
   ChevronDown,
-  Loader2,
-  CheckCircle2,
-  AlertCircle
+  Loader2
 } from 'lucide-vue-next'
 import { usePlacementStore } from '~/stores/placement'
+import { useToast } from '~/composables/useToast'
 
 interface DecodedUserToken {
   id?: string
@@ -463,6 +465,7 @@ const route = useRoute()
 const config = useRuntimeConfig()
 const apiBase = (config.public.apiBaseUrl as string) || ''
 const placementStore = usePlacementStore()
+const toast = useToast()
 
 const isMobileMenuOpen = ref(false)
 const isProfileDropdownOpen = ref(false)
@@ -472,8 +475,6 @@ const unreadNotificationsCount = ref(0)
 
 const showPlacementModal = ref(false)
 const isSubmittingModal = ref(false)
-const modalFeedback = ref('')
-const modalSuccess = ref(false)
 
 const modalForm = reactive({
   company_name: '',
@@ -584,10 +585,10 @@ const extractUserFromToken = () => {
 }
 
 const verifyPlacementInBackground = async () => {
-  if (!placementStore.placement) {
-    await placementStore.fetchPlacement()
-  }
+  // Always force-fetch from API to guarantee we check the currently authenticated token
+  await placementStore.fetchPlacement()
 
+  // If the user has no placement and is NOT already on the dedicated placement page, display modal
   if (!placementStore.hasPlacement && route.path !== '/student/placement') {
     showPlacementModal.value = true
   } else {
@@ -595,35 +596,58 @@ const verifyPlacementInBackground = async () => {
   }
 }
 
+// Watch route changes: re-check if user navigates away from /student/placement without saving
+watch(
+  () => route.path,
+  (newPath) => {
+    if (!placementStore.hasPlacement && newPath !== '/student/placement') {
+      showPlacementModal.value = true
+    } else if (newPath === '/student/placement') {
+      showPlacementModal.value = false
+    }
+  }
+)
 const submitModalPlacement = async () => {
-  modalFeedback.value = ''
   if (!modalForm.company_name || !modalForm.supervisor_email || !modalForm.start_date || !modalForm.end_date) {
-    modalFeedback.value = 'Please complete all required fields.'
-    modalSuccess.value = false
+    toast.error(new Error('Please fill in all mandatory fields indicated with an asterisk.'), 'Validation Incomplete')
+    return
+  }
+
+  const startDateObj = new Date(modalForm.start_date)
+  const endDateObj = new Date(modalForm.end_date)
+
+  if (isNaN(startDateObj.getTime()) || isNaN(endDateObj.getTime())) {
+    toast.error(new Error('Please provide valid commencement and conclusion dates.'), 'Invalid Date')
+    return
+  }
+
+  if (endDateObj <= startDateObj) {
+    toast.error(new Error('The expected conclusion date must come after the training commencement date.'), 'Date Chronology Error')
     return
   }
 
   isSubmittingModal.value = true
   try {
-    await placementStore.savePlacement({
+    // Convert YYYY-MM-DD to ISO 8601 strings to satisfy backend DateTime schemas
+    const payload = {
       company_name: modalForm.company_name.trim(),
       company_address: modalForm.company_address.trim() || null,
       company_email: modalForm.company_email.trim() || null,
       company_contact: modalForm.company_contact.trim() || null,
-      supervisor_email: modalForm.supervisor_email.trim(),
-      start_date: modalForm.start_date,
-      end_date: modalForm.end_date
-    })
+      supervisor_email: modalForm.supervisor_email.trim().toLowerCase(),
+      start_date: startDateObj.toISOString(),
+      end_date: endDateObj.toISOString()
+    }
 
-    modalSuccess.value = true
-    modalFeedback.value = 'Placement registered successfully.'
+    await placementStore.savePlacement(payload)
+
+    toast.success('Placement Registered', 'Your training host organization has been verified and saved.', 3500)
     showPlacementModal.value = false
 
-    fetchPendingEntriesCount()
-    fetchNotificationsCount()
-  } catch (err: any) {
-    modalSuccess.value = false
-    modalFeedback.value = err.message || 'Failed to submit placement details.'
+    await fetchPendingEntriesCount()
+    await fetchNotificationsCount()
+  } catch (err: unknown) {
+    toast.error(err, 'Placement Registration Failed')
   } finally {
     isSubmittingModal.value = false
   }
@@ -673,17 +697,29 @@ const handleClickOutside = (event: MouseEvent) => {
   }
 }
 
-const handleLogout = () => {
+const handleLogout = async () => {
   isProfileDropdownOpen.value = false
+  
+  // 1. Purge cookies
   const tokenCookie = useCookie<string | null>('auth_token')
   tokenCookie.value = null
-  return navigateTo('/login')
+
+  // 2. Clear stale memory in Pinia
+  placementStore.resetState()
+
+  // 3. Clear local modal state
+  showPlacementModal.value = false
+
+  await navigateTo('/login')
 }
 
-onMounted(() => {
+onMounted(async () => {
   initTheme()
   extractUserFromToken()
-  verifyPlacementInBackground()
+  
+  // Force a fresh verification against the database
+  await verifyPlacementInBackground()
+  
   fetchPendingEntriesCount()
   fetchNotificationsCount()
 
@@ -691,7 +727,6 @@ onMounted(() => {
     window.addEventListener('click', handleClickOutside)
   }
 })
-
 onBeforeUnmount(() => {
   if (import.meta.client) {
     window.removeEventListener('click', handleClickOutside)

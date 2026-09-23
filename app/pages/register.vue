@@ -277,7 +277,12 @@ import {
 } from 'lucide-vue-next'
 import { useCookie, navigateTo, useRuntimeConfig } from '#app'
 import { useToast } from '~/composables/useToast'
+import { usePlacementStore } from '~/stores/placement'
 
+// ...
+const placementStore = usePlacementStore()
+
+// Right before navigating:
 definePageMeta({ layout: false })
 
 const toast = useToast()
@@ -352,7 +357,9 @@ const handleRegister = async () => {
       sameSite: 'lax',
       secure: process.env.NODE_ENV === 'production'
     })
+
     authToken.value = res.data.access_token
+placementStore.resetState()
 
     if (res.data.refresh_token) {
       const refreshToken = useCookie('refresh_token', {

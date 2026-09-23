@@ -42,7 +42,7 @@ export { ApiError, getStoredToken, setStoredToken, getCustomApiBaseUrl, setCusto
 export { useAuthStore, UserProfile } from '../app/stores/auth';
 export { useDailyLogsStore, LogRecord, PaginationMeta } from '../app/stores/dailyLogs';
 export { useLogbookStore, SubmissionStatus, WeeklySubmissionRecord } from '../app/stores/logbook';
-export { usePlacementStore, PlacementData } from '../app/stores/placement';
+export { usePlacementStore, PlacementData, SavePlacementPayload } from '../app/stores/placement';
 export { useSessionStore } from '../app/stores/session';
 export { useUiStore } from '../app/stores/ui';
 export { defineStore, acceptHMRUpdate, usePinia, storeToRefs } from '../node_modules/@pinia/nuxt/dist/runtime/composables';

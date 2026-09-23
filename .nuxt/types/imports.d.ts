@@ -267,7 +267,7 @@ declare global {
   export type { SubmissionStatus, WeeklySubmissionRecord } from '../../app/stores/logbook'
   import('../../app/stores/logbook')
   // @ts-ignore
-  export type { PlacementData } from '../../app/stores/placement'
+  export type { PlacementData, SavePlacementPayload } from '../../app/stores/placement'
   import('../../app/stores/placement')
 }
 // for vue template auto import

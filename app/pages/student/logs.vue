@@ -7,7 +7,7 @@
           <span class="rounded bg-blue-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-blue-700 dark:bg-blue-950/60 dark:text-blue-300">
             Form ITF / SIWES-08
           </span>
-          <span class="text-xs text-slate-400">•</span>
+          <span class="text-xs text-slate-400">&bull;</span>
           <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">
             Official Daily Entry
           </span>
@@ -73,7 +73,7 @@
         </div>
         <div>
           <h2 class="text-sm font-bold text-slate-900 dark:text-white">New Activity Entry</h2>
-          <p class="text-[11px] text-slate-500 dark:text-slate-400">Specify period, technical summary, and any schematics or blueprints</p>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400">Select week and day of the week to calculate the date automatically</p>
         </div>
       </div>
 
@@ -117,18 +117,16 @@
 
           <div>
             <label for="log-date" class="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-              Date of Entry
+              Computed Entry Date
             </label>
             <input
               id="log-date"
               v-model="formDate"
               type="date"
               required
+              readonly
               :disabled="isWeekLocked"
-              :min="allowedMinDate"
-              :max="allowedMaxDate"
-              class="mt-1.5 block w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-2xs transition focus:border-slate-900 focus:outline-hidden disabled:bg-slate-100 disabled:text-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:disabled:bg-slate-800/50"
-              @change="onDateManualInput"
+              class="mt-1.5 block w-full rounded-xl border border-slate-300 bg-slate-50 px-3.5 py-2.5 text-sm font-mono text-slate-700 shadow-2xs cursor-not-allowed focus:outline-hidden dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-300"
             />
           </div>
         </div>
@@ -367,14 +365,6 @@ const formatUTC = (date: Date): string => {
   return `${y}-${m}-${d}`
 }
 
-const getWeekMondayUTC = (date: Date): Date => {
-  const copy = new Date(date.getTime())
-  const day = copy.getUTCDay()
-  const diff = day === 0 ? -6 : 1 - day
-  copy.setUTCDate(copy.getUTCDate() + diff)
-  return copy
-}
-
 const formatDisplayDate = (dateStr: string): string => {
   const raw = dateStr.split('T')[0] ?? ''
   const [y, m, d] = raw.split('-').map(Number)
@@ -386,12 +376,12 @@ const formatDisplayDate = (dateStr: string): string => {
   }).format(new Date(Date.UTC(y!, m! - 1, d)))
 }
 
-// Compute active week relative to current system date
+// Compute active week relative to placement start date
 const currentActiveWeek = computed<number>(() => {
   if (!placementStartDate.value) return 1
-  const startMonday = getWeekMondayUTC(parseDateUTC(placementStartDate.value))
-  const todayMonday = getWeekMondayUTC(new Date())
-  const diffMs = todayMonday.getTime() - startMonday.getTime()
+  const startUTC = parseDateUTC(placementStartDate.value)
+  const now = new Date()
+  const diffMs = now.getTime() - startUTC.getTime()
   if (diffMs < 0) return 1
   const computedWeek = Math.floor(diffMs / (7 * 24 * 60 * 60 * 1000)) + 1
   return Math.min(Math.max(computedWeek, 1), placementStore.maxWeeks || 24)
@@ -401,42 +391,12 @@ const isWeekLocked = computed<boolean>(() => {
   return selectedWeek.value !== currentActiveWeek.value
 })
 
-const currentWeekMinDate = computed<string | undefined>(() => {
-  if (!placementStartDate.value) return undefined
-  const startMonday = getWeekMondayUTC(parseDateUTC(placementStartDate.value))
-  const weekStart = new Date(startMonday.getTime())
-  weekStart.setUTCDate(weekStart.getUTCDate() + (currentActiveWeek.value - 1) * 7)
-  return formatUTC(weekStart)
-})
-
-const currentWeekMaxDate = computed<string | undefined>(() => {
-  if (!placementStartDate.value) return undefined
-  const startMonday = getWeekMondayUTC(parseDateUTC(placementStartDate.value))
-  const weekEnd = new Date(startMonday.getTime())
-  weekEnd.setUTCDate(weekEnd.getUTCDate() + (currentActiveWeek.value - 1) * 7 + 5) // Mon-Sat
-  return formatUTC(weekEnd)
-})
-
-// Bound the datepicker between placement start and the active week's Saturday
-const allowedMinDate = computed<string | undefined>(() => {
-  return currentWeekMinDate.value || placementStartDate.value
-})
-
-const allowedMaxDate = computed<string | undefined>(() => {
-  if (currentWeekMaxDate.value && placementEndDate.value) {
-    return currentWeekMaxDate.value < placementEndDate.value ? currentWeekMaxDate.value : placementEndDate.value
-  }
-  return currentWeekMaxDate.value || placementEndDate.value
-})
-
 const computeDateFromWeekAndDay = () => {
   dateError.value = ''
   if (!placementStartDate.value) return
 
   const startUTC = parseDateUTC(placementStartDate.value)
-  const baseMonday = getWeekMondayUTC(startUTC)
-
-  const targetDate = new Date(baseMonday.getTime())
+  const targetDate = new Date(startUTC.getTime())
   const daysToAdd = (selectedWeek.value - 1) * 7 + (dayOffsets[selectedDay.value] ?? 0)
   targetDate.setUTCDate(targetDate.getUTCDate() + daysToAdd)
 
@@ -451,32 +411,6 @@ const computeDateFromWeekAndDay = () => {
 
 const onWeekOrDayChanged = () => {
   computeDateFromWeekAndDay()
-}
-
-const onDateManualInput = () => {
-  dateError.value = ''
-  if (!formDate.value) return
-
-  const inputDate = parseDateUTC(formDate.value)
-  const dayOfWeek = inputDate.getUTCDay()
-
-  if (dayOfWeek === 0) {
-    dateError.value = 'Entries on Sunday are not permitted under SIWES rules.'
-    return
-  }
-
-  if (currentWeekMinDate.value && formDate.value < currentWeekMinDate.value) {
-    dateError.value = `Date must fall within the current active week (from ${currentWeekMinDate.value}).`
-    return
-  }
-
-  if (currentWeekMaxDate.value && formDate.value > currentWeekMaxDate.value) {
-    dateError.value = `Date cannot exceed current active week (to ${currentWeekMaxDate.value}).`
-    return
-  }
-
-  const daysArr = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-  selectedDay.value = daysArr[dayOfWeek] ?? ''
 }
 
 const handleFileChange = (e: Event) => {
@@ -527,29 +461,12 @@ onMounted(async () => {
     await placementStore.fetchPlacement()
   }
 
-  // 1. Lock the initial week to the current active week
+  // Set selected week to current active week and default day selection to Monday
   selectedWeek.value = currentActiveWeek.value
+  selectedDay.value = 'Monday'
 
-  // 2. Initialize default date to today's date (or Saturday if today is Sunday)
-  const now = new Date()
-  const todayDayIndex = now.getDay()
-
-  if (todayDayIndex === 0) {
-    // If today is Sunday, default to Saturday of current week to avoid immediate validation error
-    const saturdayDate = new Date(now.getTime() - 24 * 60 * 60 * 1000)
-    formDate.value = formatUTC(saturdayDate)
-    selectedDay.value = 'Saturday'
-  } else {
-    formDate.value = formatUTC(now)
-    const daysArr = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-    selectedDay.value = daysArr[todayDayIndex] || 'Monday'
-  }
-
-  // Validate the initialized date against placement boundaries
-  if (placementStartDate.value && formDate.value < placementStartDate.value) {
-    formDate.value = placementStartDate.value
-    computeDateFromWeekAndDay()
-  }
+  // Derive the initial formDate based on Week & Day selection
+  computeDateFromWeekAndDay()
 
   if (dailyLogsStore.logs.length === 0) {
     await dailyLogsStore.fetchLogs({ limit: 150 })
