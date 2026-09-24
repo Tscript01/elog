@@ -163,7 +163,8 @@ const fetchTrainees = async () => {
       headers: getAuthHeaders(),
       withCredentials: true
     })
-    trainees.value = res.data.trainees || res.data || []
+  trainees.value = res.data.data?.trainees || res.data.trainees || res.data.data || res.data || []
+    console.log(res.data);
   } catch (err: unknown) {
     toast.error(err, 'Failed to Load Roster')
   } finally {

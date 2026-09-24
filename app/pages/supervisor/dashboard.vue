@@ -303,11 +303,12 @@ const supervisorRemarks = ref('')
 const isSubmittingReview = ref(false)
 
 const pendingSubmissionsCount = computed(() => {
-  // Can be aggregated across trainees once loaded
+  if (!Array.isArray(trainees.value)) return 0
   return trainees.value.reduce((acc, t) => acc + (t.pending_count || 0), 0)
 })
 
 const approvedSubmissionsCount = computed(() => {
+  if (!Array.isArray(trainees.value)) return 0
   return trainees.value.reduce((acc, t) => acc + (t.approved_count || 0), 0)
 })
 
@@ -323,12 +324,16 @@ const fetchSupervisorData = async () => {
       headers: getAuthHeaders(),
       withCredentials: true
     })
-    trainees.value = res.data.trainees || res.data || []
+    
+    // Safely extract array regardless of API response wrapping shape
+    const responseData = res.data?.data?.trainees || res.data?.trainees || res.data?.data || res.data
+    trainees.value = Array.isArray(responseData) ? responseData : []
     
     if (trainees.value.length > 0 && !selectedTrainee.value) {
       await selectTrainee(trainees.value[0])
     }
   } catch (err: unknown) {
+    trainees.value = []
     toast.error(err, 'Failed to Load Roster')
   } finally {
     isLoading.value = false
@@ -345,7 +350,8 @@ const selectTrainee = async (trainee: any) => {
       headers: getAuthHeaders(),
       withCredentials: true
     })
-    traineeSubmissions.value = res.data.submissions || res.data || []
+    const subData = res.data?.data?.submissions || res.data?.submissions || res.data?.data || res.data
+    traineeSubmissions.value = Array.isArray(subData) ? subData : []
   } catch (err: unknown) {
     traineeSubmissions.value = []
     toast.error(err, 'Failed to Load Trainee Submissions')
@@ -380,7 +386,6 @@ const submitReview = async (status: 'APPROVED' | 'REJECTED') => {
     toast.success('Review Recorded', `Weekly log status updated to ${status}.`)
     isModalOpen.value = false
 
-    // Refresh submission list for active trainee
     if (selectedTrainee.value) {
       await selectTrainee(selectedTrainee.value)
     }

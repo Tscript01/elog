@@ -163,14 +163,14 @@
                   <span
                     :class="[
                       'rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider',
-                      log.status === 'APPROVED'
+                      getLogStatus(log) === 'APPROVED'
                         ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-400'
-                        : log.status === 'DECLINED' || log.status === 'DRAFT'
+                        : getLogStatus(log) === 'REJECTED' || getLogStatus(log) === 'DECLINED' || getLogStatus(log) === 'DRAFT'
                           ? 'bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-400'
                           : 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-400'
                     ]"
                   >
-                    {{ log.status || 'PENDING' }}
+                    {{ getLogStatus(log) }}
                   </span>
                 </div>
                 <p class="mt-2 line-clamp-2 text-xs leading-5 text-slate-700 dark:text-slate-300">
@@ -371,16 +371,26 @@ const progressPercentage = computed(() => {
   return Math.min(Math.round((activeWeeksCount.value / max) * 100), 100)
 })
 
+const getLogStatus = (log: any) => {
+  return log.status || log.weekly_submission?.status || 'PENDING'
+}
+
 const approvedCount = computed(() => {
-  return dailyLogsStore.logs.filter((l) => l.status === 'APPROVED').length
+  return dailyLogsStore.logs.filter((l) => getLogStatus(l) === 'APPROVED').length
 })
 
 const pendingCount = computed(() => {
-  return dailyLogsStore.logs.filter((l) => !l.status || l.status === 'PENDING').length
+  return dailyLogsStore.logs.filter((l) => {
+    const st = getLogStatus(l)
+    return !st || st === 'PENDING'
+  }).length
 })
 
 const rejectedCount = computed(() => {
-  return dailyLogsStore.logs.filter((l) => l.status === 'DECLINED' || l.status === 'DRAFT').length
+  return dailyLogsStore.logs.filter((l) => {
+    const st = getLogStatus(l)
+    return st === 'REJECTED' || st === 'DECLINED' || st === 'DRAFT'
+  }).length
 })
 
 const approvalRate = computed(() => {
@@ -420,12 +430,10 @@ onMounted(async () => {
     authStore.initUser()
   }
 
-  // Load placement cache once if not loaded
   if (!placementStore.placement) {
     await placementStore.fetchPlacement()
   }
 
-  // Load logs once if not populated
   if (dailyLogsStore.logs.length === 0) {
     await dailyLogsStore.fetchLogs({ limit: 150 })
   }
