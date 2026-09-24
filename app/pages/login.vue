@@ -122,7 +122,7 @@
                   <button 
                     type="button" 
                     class="text-[11px] font-medium text-blue-600 hover:text-blue-500 transition-colors dark:text-blue-400 dark:hover:text-blue-300"
-                    @click="toast.info('Credential Recovery', 'Contact your departmental coordinator to reset your credentials.')"
+                    @click="isForgotModalOpen = true"
                   >
                     Forgot password?
                   </button>
@@ -191,6 +191,82 @@
       </div>
     </main>
 
+    <!-- Forgot Password Modal Drawer -->
+    <div
+      v-if="isForgotModalOpen"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div class="relative w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-slate-800 dark:bg-slate-900 sm:p-7">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-4 dark:border-slate-800">
+          <div>
+            <h3 class="text-base font-bold text-slate-900 dark:text-white">Password Recovery</h3>
+            <p class="text-xs text-slate-500">Receive a secure reset link in your email inbox</p>
+          </div>
+          <button
+            type="button"
+            class="rounded-lg p-1 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+            @click="isForgotModalOpen = false"
+          >
+            <X class="h-5 w-5" />
+          </button>
+        </div>
+
+        <div v-if="isForgotSubmitted" class="py-6 text-center">
+          <CheckCircle2 class="mx-auto h-10 w-10 text-emerald-600 dark:text-emerald-400" />
+          <h4 class="mt-3 text-sm font-bold text-slate-900 dark:text-white">Check Your Email</h4>
+          <p class="mt-1 text-xs text-slate-500">
+            If an account matches <span class="font-semibold text-slate-800 dark:text-slate-200">{{ forgotEmail }}</span>, instructions have been dispatched.
+          </p>
+          <button
+            type="button"
+            class="mt-5 rounded-xl bg-slate-900 px-5 py-2.5 text-xs font-semibold text-white shadow-xs transition hover:bg-slate-800 dark:bg-slate-800 dark:text-white"
+            @click="isForgotModalOpen = false; isForgotSubmitted = false; forgotEmail = ''"
+          >
+            Close Window
+          </button>
+        </div>
+
+        <form v-else class="mt-5 space-y-4" @submit.prevent="handleForgotPassword">
+          <div>
+            <label for="forgot-email" class="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+              Registered Email Address
+            </label>
+            <div class="relative mt-1.5">
+              <Mail class="absolute left-3.5 top-3 h-4 w-4 text-slate-400" />
+              <input
+                id="forgot-email"
+                v-model.trim="forgotEmail"
+                type="email"
+                required
+                placeholder="e.g. student@institution.edu.ng"
+                class="block w-full rounded-xl border border-slate-300 bg-white py-2.5 pl-10 pr-3.5 text-xs text-slate-900 shadow-2xs focus:border-slate-900 focus:outline-hidden dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+              />
+            </div>
+          </div>
+
+          <div class="flex items-center justify-end gap-3 pt-2">
+            <button
+              type="button"
+              class="rounded-xl px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
+              @click="isForgotModalOpen = false"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              :disabled="isSendingForgot"
+              class="inline-flex items-center gap-1.5 rounded-xl bg-blue-600 px-5 py-2 text-xs font-semibold text-white shadow-xs transition hover:bg-blue-500 disabled:opacity-50"
+            >
+              <Loader2 v-if="isSendingForgot" class="h-4 w-4 animate-spin" />
+              <span>{{ isSendingForgot ? 'Sending Link...' : 'Send Reset Link' }}</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <!-- Structural Bottom Bar -->
     <footer class="relative z-10 flex h-14 w-full items-center justify-between border-t border-slate-200 bg-white/80 px-6 text-[11px] text-slate-500 backdrop-blur-md transition-colors dark:border-slate-800/80 dark:bg-slate-950/70">
       <span>Industrial Training Fund Form 8 Spec &bull; Electronic SIWES Directorate</span>
@@ -215,17 +291,16 @@ import {
   UserCheck,
   ShieldCheck,
   Clock,
-  ArrowRight
+  ArrowRight,
+  X,
+  Mail,
+  CheckCircle2
 } from 'lucide-vue-next'
 import { useCookie, navigateTo, useRuntimeConfig } from '#app'
 import { useToast } from '~/composables/useToast'
 import { usePlacementStore } from '~/stores/placement'
 
-// ...
 const placementStore = usePlacementStore()
-
-// Right before navigating:
-
 
 definePageMeta({ layout: false })
 
@@ -247,6 +322,12 @@ const rememberMe = ref(true)
 const showPassword = ref(false)
 const isLoading = ref(false)
 const isDark = ref(false)
+
+// Forgot Password State
+const isForgotModalOpen = ref(false)
+const forgotEmail = ref('')
+const isSendingForgot = ref(false)
+const isForgotSubmitted = ref(false)
 
 const toast = useToast()
 const config = useRuntimeConfig()
@@ -333,6 +414,23 @@ const handleLogin = async () => {
     toast.error(err, 'Sign In Failed')
   } finally {
     isLoading.value = false
+  }
+}
+
+const handleForgotPassword = async () => {
+  if (!forgotEmail.value.trim()) return
+
+  isSendingForgot.value = true
+  try {
+    await axios.post(`${apiBase}/api/auth/forgot-password`, {
+      email: forgotEmail.value.trim().toLowerCase()
+    })
+    isForgotSubmitted.value = true
+    toast.success('Reset Link Dispatched', 'Check your email inbox for password recovery steps.')
+  } catch (err: unknown) {
+    toast.error(err, 'Request Failed')
+  } finally {
+    isSendingForgot.value = false
   }
 }
 </script>

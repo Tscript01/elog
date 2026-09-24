@@ -4,6 +4,7 @@ import type { ComponentProps } from "../../node_modules/vue-component-type-helpe
 declare module 'nuxt/app' {
   interface NuxtLayouts {
     student: ComponentProps<typeof import("C:/Users/T_script/Desktop/log/app/layouts/student.vue").default>
+    supervisor: ComponentProps<typeof import("C:/Users/T_script/Desktop/log/app/layouts/supervisor.vue").default>
   }
   export type LayoutKey = keyof NuxtLayouts extends never ? string : keyof NuxtLayouts
   interface PageMeta {

@@ -6,36 +6,38 @@ interface AuthJwtPayload {
   [key: string]: unknown
 }
 
-export default defineNuxtRouteMiddleware(async(to) => {
+export default defineNuxtRouteMiddleware((to) => {
+  // Allow public access to login and register pages immediately
+  const isPublicRoute = to.path === '/login' || to.path === '/register' || to.path === '/forgot-password' || to.path === '/reset-password'
+  if (isPublicRoute) {
+    return
+  }
+
   const tokenCookie = useCookie<string | null>('auth_token')
+  const token = tokenCookie.value
+
   const redirectCookie = useCookie<string | null>('redirect_after_login', {
     maxAge: 600,
     path: '/',
     sameSite: 'lax'
   })
 
-  const token = tokenCookie.value
-
+  // Role landing route mapping
   const roleLandingRoutes: Record<string, string> = {
-    student: '/student/dashboard',
+    student: '/student/dashboard', 
     supervisor: '/supervisor/dashboard',
     coordinator: '/coordinator/dashboard',
     admin: '/admin/dashboard'
   }
 
-  const isPublicRoute = to.path === '/login' || to.path === '/register'
-
-  // 1. Unauthenticated handling
+  // 1. Handle missing token for protected routes
   if (!token) {
-    if (!isPublicRoute) {
-      redirectCookie.value = to.fullPath
-      return navigateTo('/login')
-    }
-    return // Already on a public route; stop navigation
+    redirectCookie.value = to.fullPath
+    return navigateTo('/login')
   }
 
-  // 2. Token decoding & expiration verification
-  let role: string | null = null
+  // 2. Decode token and verify expiration
+  let rawRole: string | null = null
   let isExpired = false
 
   try {
@@ -45,53 +47,47 @@ export default defineNuxtRouteMiddleware(async(to) => {
     if (!decoded.exp || decoded.exp <= currentTime) {
       isExpired = true
     } else {
-      role = decoded.role ? String(decoded.role).toLowerCase() : null
+      rawRole = decoded.role ? String(decoded.role).toLowerCase() : null
     }
   } catch {
     isExpired = true
   }
 
-  // 3. Expired or malformed token handling
-  if (isExpired || !role) {
+  // 3. Handle expired or malformed tokens
+  if (isExpired || !rawRole) {
     tokenCookie.value = null
-    if (!isPublicRoute) {
-      redirectCookie.value = to.fullPath
-      return navigateTo('/login')
-    }
-    return // Stop here if already on /login or /signup
+    redirectCookie.value = to.fullPath
+    return navigateTo('/login')
   }
+
+  // Normalize backend role variants
+  let role = rawRole
+  if (rawRole === 'ind_supervisor' || rawRole === 'is') role = 'supervisor'
+  if (rawRole === 'inst_coordinator' || rawRole === 'coordinator') role = 'coordinator'
 
   const targetLanding = roleLandingRoutes[role] || '/login'
 
-  // 4. Authenticated user visiting public landing or root
-  if (isPublicRoute || to.path === '/') {
+  // 4. Handle root path redirection for authenticated users
+  if (to.path === '/') {
     const returnTarget = redirectCookie.value
     redirectCookie.value = null
 
-    // Ensure target isn't public, matches the role, and isn't the current path
     if (
       returnTarget &&
       returnTarget !== '/login' &&
       returnTarget !== '/register' &&
       returnTarget !== '/' &&
-      returnTarget.startsWith(`/${role}`) &&
-      to.fullPath !== returnTarget
+      returnTarget.startsWith(`/${role}`)
     ) {
       return navigateTo(returnTarget)
     }
 
-    if (to.path !== targetLanding) {
-      return navigateTo(targetLanding)
-    }
-    return
+    return navigateTo(targetLanding)
   }
 
-  // 5. Role path restriction (prevent cross-role access)
+  // 5. Restrict cross-role access (prevent students from visiting supervisor pages and vice versa)
   const expectedPrefix = `/${role}`
   if (!to.path.startsWith(expectedPrefix)) {
-    if (to.path !== targetLanding) {
-      return navigateTo(targetLanding)
-    }
-    return
+    return navigateTo(targetLanding)
   }
 })
