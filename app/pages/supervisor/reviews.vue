@@ -90,7 +90,7 @@
         >
           <div class="min-w-0 flex-1">
             <div class="flex flex-wrap items-center gap-2.5">
-              <span class="font-bold text-slate-900 dark:text-white">{{ sub.student_name || 'Trainee' }}</span>
+              <span class="font-bold text-slate-900 dark:text-white">{{ sub.student_name || sub.student?.name || 'Trainee' }}</span>
               <span class="text-xs text-slate-400">&bull;</span>
               <span class="text-xs font-semibold text-slate-600 dark:text-slate-300">Week {{ sub.week_no }}</span>
               <span
@@ -135,7 +135,7 @@
         <div class="flex items-center justify-between border-b border-slate-100 pb-4 dark:border-slate-800">
           <div>
             <h3 class="text-base font-bold text-slate-900 dark:text-white">
-              {{ activeSubmission.student_name }} - Week {{ activeSubmission.week_no }} Review
+              {{ activeSubmission.student_name || activeSubmission.student?.name || 'Trainee' }} - Week {{ activeSubmission.week_no }} Review
             </h3>
             <p class="text-xs text-slate-500">Inspect logs and sign off with professional feedback</p>
           </div>
@@ -258,7 +258,13 @@ const fetchReviews = async () => {
       headers: getAuthHeaders(),
       withCredentials: true
     })
-    submissions.value = res.data.submissions || res.data || []
+    const rawData = res.data.submissions || res.data.data?.submissions || res.data || []
+    
+    // Normalize IDs to ensure each record has a valid .id property
+    submissions.value = Array.isArray(rawData) ? rawData.map(item => ({
+      ...item,
+      id: item.id || item.submission_id
+    })) : []
   } catch (err: unknown) {
     toast.error(err, 'Failed to Load Submissions')
   } finally {
@@ -273,12 +279,16 @@ const openReviewModal = (sub: any) => {
 }
 
 const submitReview = async (status: 'APPROVED' | 'REJECTED') => {
-  if (!activeSubmission.value) return
+  const submissionId = activeSubmission.value?.id || activeSubmission.value?.submission_id
+  if (!submissionId) {
+    toast.error('Error', 'Missing submission identifier.')
+    return
+  }
 
   isSubmittingReview.value = true
   try {
     await axios.put(
-      `${apiBase}/api/supervisor/submissions/${activeSubmission.value.id}/review`,
+      `${apiBase}/api/supervisor/submissions/${submissionId}/review`,
       {
         status,
         remarks: supervisorRemarks.value.trim() || null

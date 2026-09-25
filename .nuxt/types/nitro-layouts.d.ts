@@ -1,4 +1,4 @@
-export type LayoutKey = "student" | "supervisor"
+export type LayoutKey = "coordinator" | "student" | "supervisor"
 declare module 'nitropack' {
   interface NitroRouteConfig {
     appLayout?: LayoutKey | false

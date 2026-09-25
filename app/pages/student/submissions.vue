@@ -42,40 +42,49 @@
             <th scope="col" class="px-4 py-2.5 font-semibold">Period</th>
             <th scope="col" class="px-4 py-2.5 font-semibold">Entries</th>
             <th scope="col" class="px-4 py-2.5 font-semibold">Status</th>
+            <th scope="col" class="px-4 py-2.5 font-semibold">Supervisor Feedback</th>
             <th scope="col" class="px-4 py-2.5 text-right font-semibold">Action</th>
           </tr>
         </thead>
-        <tbody>
-          <tr
-            v-for="week in filteredWeeks"
-            :key="week.id || week.week_no"
-            class="border-t border-slate-200 dark:border-slate-800"
-          >
-            <th scope="row" class="px-4 py-3 font-medium text-slate-700 dark:text-slate-200">
-              Week {{ week.week_no }}
-            </th>
-            <td class="px-4 py-3 text-slate-600 dark:text-slate-300">
-              {{ getPeriodString(week.week_no) }}
-            </td>
-            <td class="px-4 py-3 text-slate-600 dark:text-slate-300">
-              {{ week.daily_logs?.length || 0 }}/6
-            </td>
-            <td class="px-4 py-3">
-              <UiBaseBadge :tone="submissionTone[week.status]" dot>
-                {{ submissionLabel[week.status] }}
-              </UiBaseBadge>
-            </td>
-            <td class="px-4 py-3 text-right">
-              <button
-                type="button"
-                class="rounded-lg px-2.5 py-1 text-xs font-semibold text-slate-900 transition hover:bg-slate-100 dark:text-blue-400 dark:hover:bg-slate-800"
-                @click="openWeek(week.week_no)"
-              >
-                Open
-                <span class="sr-only">week {{ week.week_no }}</span>
-              </button>
-            </td>
-          </tr>
+        <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
+          <template v-for="week in filteredWeeks" :key="week.id || week.week_no">
+            <tr class="transition-colors hover:bg-slate-50/50 dark:hover:bg-slate-800/30">
+              <th scope="row" class="px-4 py-3 font-medium text-slate-700 dark:text-slate-200">
+                Week {{ week.week_no }}
+              </th>
+              <td class="px-4 py-3 text-slate-600 dark:text-slate-300">
+                {{ getPeriodString(week.week_no) }}
+              </td>
+              <td class="px-4 py-3 text-slate-600 dark:text-slate-300">
+                {{ week.daily_logs?.length || 0 }}/6
+              </td>
+              <td class="px-4 py-3">
+                <UiBaseBadge :tone="submissionTone[week.status]" dot>
+                  {{ submissionLabel[week.status] }}
+                </UiBaseBadge>
+              </td>
+              <td class="px-4 py-3 text-xs text-slate-600 dark:text-slate-400 max-w-xs truncate">
+                {{ week.supervisor_remarks || 'No remarks yet' }}
+              </td>
+              <td class="px-4 py-3 text-right">
+                <button
+                  type="button"
+                  class="rounded-lg px-2.5 py-1 text-xs font-semibold text-slate-900 transition hover:bg-slate-100 dark:text-blue-400 dark:hover:bg-slate-800"
+                  @click="openWeek(week.week_no)"
+                >
+                  Open
+                  <span class="sr-only">week {{ week.week_no }}</span>
+                </button>
+              </td>
+            </tr>
+            <!-- Expanded feedback row if supervisor remarks are long or available -->
+            <tr v-if="week.supervisor_remarks" class="bg-slate-50/60 dark:bg-slate-900/40">
+              <td colspan="6" class="px-4 py-2.5 text-xs text-slate-600 dark:text-slate-300">
+                <span class="font-bold text-slate-900 dark:text-white">Supervisor Remarks:</span>
+                <span class="ml-2 italic">{{ week.supervisor_remarks }}</span>
+              </td>
+            </tr>
+          </template>
         </tbody>
       </table>
     </div>
@@ -149,7 +158,7 @@ const getPeriodString = (weekNo: number): string => {
   weekStart.setUTCDate(weekStart.getUTCDate() + (weekNo - 1) * 7)
 
   const weekEnd = new Date(weekStart.getTime())
-  weekEnd.setUTCDate(weekEnd.getUTCDate() + 5) // Mon - Sat
+  weekEnd.setUTCDate(weekEnd.getUTCDate() + 5)
 
   return `${formatDateShort(weekStart)} – ${formatDateShort(weekEnd)}`
 }
