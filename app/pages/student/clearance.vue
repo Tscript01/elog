@@ -384,33 +384,44 @@ const fetchClearanceData = async () => {
 }
 
 const downloadEndorsedLogbook = async () => {
-  if (!isCoordinatorCleared.value) return
-  isDownloading.value = true
+  if (!isCoordinatorCleared.value) return;
+  isDownloading.value = true;
 
   try {
     const response = await axios.get(`${apiBase}/api/student/logbook/download-pdf`, {
       headers: getHeaders(),
       responseType: 'blob',
-      withCredentials: true
-    })
+      withCredentials: true,
+    });
 
-    const blob = new Blob([response.data], { type: 'application/pdf' })
-    const downloadUrl = window.URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = downloadUrl
-    link.setAttribute('download', `SIWES_Logbook_${placement.value?.student?.matric_no || 'Docket'}.pdf`)
-    document.body.appendChild(link)
-    link.click()
-    link.remove()
-    window.URL.revokeObjectURL(downloadUrl)
+    // Check if the server actually sent back a JSON error wrapped in a blob
+    if (response.data.type === 'application/json') {
+      const errorText = await response.data.text();
+      const parsed = JSON.parse(errorText);
+      toast.error(parsed.message || 'Failed to generate logbook');
+      return;
+    }
 
-    toast.success('Dossier Downloaded', 'Endorsed Form ITF-08 logbook generated successfully.')
+    const blob = new Blob([response.data], { type: 'application/pdf' });
+    const downloadUrl = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.setAttribute(
+      'download',
+      `SIWES_Logbook_${placement.value?.student?.matric_no || 'Docket'}.pdf`
+    );
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(downloadUrl);
+
+    toast.success('Dossier Downloaded', 'Endorsed Form ITF-08 logbook generated successfully.');
   } catch (err: unknown) {
-    toast.error(err, 'Failed to Generate PDF Dossier')
+    toast.error(err, 'Failed to Generate PDF Dossier');
   } finally {
-    isDownloading.value = false
+    isDownloading.value = false;
   }
-}
+};
 
 const submitToITF = async () => {
   if (!isCoordinatorCleared.value) return
