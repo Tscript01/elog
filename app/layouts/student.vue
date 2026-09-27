@@ -3,12 +3,11 @@
     <!-- Unassigned Placement Enforcement Modal -->
     <div
       v-if="showPlacementModal"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md"
+      class="fixed inset-0 z-40 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md"
       role="dialog"
       aria-modal="true"
     >
       <div class="relative w-full max-w-xl rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl transition-colors dark:border-slate-800 dark:bg-slate-900 sm:p-7 max-h-[92vh] overflow-y-auto">
-        <!-- Modal Header -->
         <div class="flex items-start gap-4 border-b border-slate-100 pb-5 dark:border-slate-800">
           <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400">
             <Building2 class="h-5 w-5" />
@@ -23,9 +22,7 @@
           </div>
         </div>
 
-        <!-- Form -->
         <form class="mt-5 space-y-4" @submit.prevent="submitModalPlacement">
-          <!-- Company Name -->
           <div>
             <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
               Host Organization / Company <span class="text-rose-500">*</span>
@@ -39,7 +36,6 @@
             />
           </div>
 
-          <!-- Geographical Territory: State & Town/City -->
           <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
@@ -71,7 +67,6 @@
             </div>
           </div>
 
-          <!-- Physical Address -->
           <div>
             <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
               Company Physical Location Address <span class="text-rose-500">*</span>
@@ -86,7 +81,6 @@
           </div>
 
           <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <!-- Company Email -->
             <div>
               <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
                 Company Official Email
@@ -99,7 +93,6 @@
               />
             </div>
 
-            <!-- Contact Phone -->
             <div>
               <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
                 Company Phone Number
@@ -113,7 +106,6 @@
             </div>
           </div>
 
-          <!-- Supervisor Email -->
           <div>
             <div class="flex items-center justify-between">
               <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
@@ -130,7 +122,6 @@
             />
           </div>
 
-          <!-- Start and End Date -->
           <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
@@ -156,7 +147,6 @@
             </div>
           </div>
 
-          <!-- Modal Actions -->
           <div class="flex items-center justify-between border-t border-slate-100 pt-5 dark:border-slate-800">
             <button
               type="button"
@@ -181,14 +171,14 @@
     <!-- Mobile Backdrop -->
     <div
       v-if="isMobileMenuOpen"
-      class="fixed inset-0 z-40 bg-slate-950/50 backdrop-blur-xs transition-opacity lg:hidden"
+      class="fixed inset-0 z-30 bg-slate-950/50 backdrop-blur-xs transition-opacity lg:hidden"
       @click="isMobileMenuOpen = false"
     />
 
     <!-- Mobile Slide-over Drawer -->
     <aside
       :class="[
-        'fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r border-slate-200 bg-white transition-transform duration-200 ease-in-out dark:border-slate-800 dark:bg-slate-900 lg:hidden',
+        'fixed inset-y-0 left-0 z-30 flex w-72 flex-col border-r border-slate-200 bg-white transition-transform duration-200 ease-in-out dark:border-slate-800 dark:bg-slate-900 lg:hidden',
         isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
       ]"
     >
@@ -329,7 +319,7 @@
 
     <!-- Main Content Area -->
     <div class="lg:pl-64">
-      <header class="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-slate-200 bg-white/85 px-4 backdrop-blur-md dark:border-slate-800 dark:bg-slate-900/85 sm:px-6">
+      <header class="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-slate-200 bg-white/85 px-4 backdrop-blur-md dark:border-slate-800 dark:bg-slate-900/85 sm:px-6">
         <div class="flex items-center gap-3">
           <button
             type="button"
@@ -459,8 +449,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, watch, onMounted, onBeforeUnmount } from 'vue'
-import axios, { AxiosError } from 'axios'
+import { ref, reactive, computed, onMounted, onBeforeUnmount } from 'vue'
+import axios from 'axios'
 import { jwtDecode } from 'jwt-decode'
 import { useCookie, useRuntimeConfig, navigateTo, useRoute } from '#app'
 import {
@@ -513,9 +503,14 @@ const isProfileDropdownOpen = ref(false)
 const profileDropdownRef = ref<HTMLElement | null>(null)
 const isDark = ref(false)
 const unreadNotificationsCount = ref(0)
-
-const showPlacementModal = ref(false)
+const isInitializing = ref(true)
 const isSubmittingModal = ref(false)
+
+const showPlacementModal = computed(() => {
+  if (isInitializing.value) return false
+  if (route.path === '/student/placement') return false
+  return !placementStore.hasPlacement && !placementStore.isLoading
+})
 
 const modalForm = reactive({
   company_name: '',
@@ -627,61 +622,14 @@ const extractUserFromToken = () => {
   }
 }
 
-const verifyPlacementInBackground = async () => {
-  const token = useCookie<string | null>('auth_token').value
-  if (!token) return
-
-  try {
-    const res = await axios.get<any>(`${apiBase}/api/placements/current`, {
-      headers: getAuthHeaders(),
-      withCredentials: true
-    })
-
-    const data = res.data?.placement || res.data?.data || res.data
-    if (data && (data.id || data.company_name)) {
-      placementStore.placement = data
-      showPlacementModal.value = false
-    } else {
-      placementStore.placement = null
-      if (route.path !== '/student/placement') {
-        showPlacementModal.value = true
-      }
-    }
-  } catch (err: unknown) {
-    const axiosErr = err as AxiosError
-    // ONLY display modal if the backend definitively says 404 (no placement found)
-    if (axiosErr.response?.status === 404) {
-      placementStore.placement = null
-      if (route.path !== '/student/placement') {
-        showPlacementModal.value = true
-      }
-    } else {
-      // Network failure, 500 error, or server timeout: DO NOT show modal
-      showPlacementModal.value = false
-      toast.error('Unable to verify placement status due to a connection error.', 'Network Offline')
-    }
-  }
-}
-
-watch(
-  () => route.path,
-  (newPath) => {
-    if (!placementStore.hasPlacement && showPlacementModal.value && newPath === '/student/placement') {
-      showPlacementModal.value = false
-    }
-  }
-)
-
 const submitModalPlacement = async () => {
-  if (
-    !modalForm.company_name ||
-    !modalForm.state ||
-    !modalForm.city ||
-    !modalForm.company_address ||
-    !modalForm.supervisor_email ||
-    !modalForm.start_date ||
-    !modalForm.end_date
-  ) {
+  const companyName = modalForm.company_name?.trim()
+  const stateVal = modalForm.state?.trim()
+  const cityVal = modalForm.city?.trim()
+  const addressVal = modalForm.company_address?.trim()
+  const supervisorEmail = modalForm.supervisor_email?.trim().toLowerCase()
+
+  if (!companyName || !stateVal || !cityVal || !addressVal || !supervisorEmail || !modalForm.start_date || !modalForm.end_date) {
     toast.error(new Error('Please fill in all mandatory fields indicated with an asterisk.'), 'Validation Incomplete')
     return
   }
@@ -708,24 +656,38 @@ const submitModalPlacement = async () => {
   isSubmittingModal.value = true
   try {
     const payload = {
-      company_name: modalForm.company_name.trim(),
-      state: modalForm.state,
-      city: modalForm.city.trim(),
-      company_address: modalForm.company_address.trim(),
-      company_email: modalForm.company_email.trim() || null,
-      company_contact: modalForm.company_contact.trim() || null,
-      supervisor_email: modalForm.supervisor_email.trim().toLowerCase(),
+      company_name: companyName,
+      state: stateVal,
+      city: cityVal,
+      company_address: addressVal,
+      company_email: modalForm.company_email?.trim() || null,
+      company_contact: modalForm.company_contact?.trim() || null,
+      supervisor_email: supervisorEmail,
+      ind_supervisor_email: supervisorEmail,
+      ind_supervisor_name: 'Industrial Supervisor',
       start_date: startDateObj.toISOString(),
       end_date: endDateObj.toISOString()
     }
 
-    await placementStore.savePlacement(payload)
+    const created = await placementStore.savePlacement(payload)
+    placementStore.placement = created
+
+    modalForm.company_name = ''
+    modalForm.state = ''
+    modalForm.city = ''
+    modalForm.company_address = ''
+    modalForm.company_email = ''
+    modalForm.company_contact = ''
+    modalForm.supervisor_email = ''
+    modalForm.start_date = ''
+    modalForm.end_date = ''
 
     toast.success('Placement Registered', 'Your training host organization has been verified and saved.', 3500)
-    showPlacementModal.value = false
 
-    await fetchPendingEntriesCount()
-    await fetchNotificationsCount()
+    await Promise.all([
+      fetchPendingEntriesCount(),
+      fetchNotificationsCount()
+    ])
   } catch (err: unknown) {
     toast.error(err, 'Placement Registration Failed')
   } finally {
@@ -784,7 +746,6 @@ const handleLogout = async () => {
   tokenCookie.value = null
 
   placementStore.resetState()
-  showPlacementModal.value = false
 
   await navigateTo('/login')
 }
@@ -792,9 +753,15 @@ const handleLogout = async () => {
 onMounted(async () => {
   initTheme()
   extractUserFromToken()
-  
-  await verifyPlacementInBackground()
-  
+
+  try {
+    if (!placementStore.placement) {
+      await placementStore.fetchPlacement()
+    }
+  } finally {
+    isInitializing.value = false
+  }
+
   fetchPendingEntriesCount()
   fetchNotificationsCount()
 

@@ -73,7 +73,7 @@
         </div>
         <div>
           <h2 class="text-sm font-bold text-slate-900 dark:text-white">New Activity Entry</h2>
-          <p class="text-[11px] text-slate-500 dark:text-slate-400">Select week and day of the week to calculate the date automatically</p>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400">Select week and active working day (Monday - Saturday) to record your log</p>
         </div>
       </div>
 
@@ -109,8 +109,13 @@
               class="mt-1.5 block w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-2xs transition focus:border-slate-900 focus:outline-hidden disabled:bg-slate-100 disabled:text-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:disabled:bg-slate-800/50"
               @change="onWeekOrDayChanged"
             >
-              <option v-for="day in availableDays" :key="day" :value="day">
-                {{ day }}
+              <option
+                v-for="d in computedDaysForWeek"
+                :key="d.name"
+                :value="d.name"
+                :disabled="d.isSunday"
+              >
+                {{ d.name }} ({{ d.dateDisplay }}) {{ d.isSunday ? '- Closed (Sunday)' : '' }}
               </option>
             </select>
           </div>
@@ -222,7 +227,7 @@
         <div class="flex items-center justify-end gap-3 border-t border-slate-100 pt-5 dark:border-slate-800">
           <button
             type="submit"
-            :disabled="dailyLogsStore.isSubmitting || !!dateError || isWeekLocked"
+            :disabled="dailyLogsStore.isSubmitting || !!dateError || isWeekLocked || selectedDay === 'Sunday'"
             class="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-5 py-2.5 text-xs font-semibold text-white shadow-xs transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-blue-600 dark:hover:bg-blue-500"
           >
             <Loader2 v-if="dailyLogsStore.isSubmitting" class="h-4 w-4 animate-spin" />
@@ -242,7 +247,7 @@
           <p class="text-xs text-slate-500 dark:text-slate-400">Review individual daily recordings submitted for supervisor endorsement</p>
         </div>
         <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-300">
-          {{ currentWeekLogs.length }} of 6 days logged
+          {{ currentWeekLogs.length }} of 6 working days logged
         </span>
       </div>
 
@@ -273,14 +278,16 @@
               <span
                 :class="[
                   'rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider',
-                  item.status === 'APPROVED'
+                  resolveItemStatus(item) === 'APPROVED'
                     ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-400'
-                    : item.status === 'DECLINED' || item.status === 'DRAFT'
+                    : resolveItemStatus(item) === 'DECLINED'
                       ? 'bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-400'
-                      : 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-400'
+                      : resolveItemStatus(item) === 'SUBMITTED'
+                        ? 'bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-400'
+                        : 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-400'
                 ]"
               >
-                {{ item.status || 'PENDING' }}
+                {{ resolveItemStatus(item) }}
               </span>
             </div>
             <p class="mt-2 text-xs leading-relaxed text-slate-700 dark:text-slate-300">
@@ -326,14 +333,15 @@ definePageMeta({ layout: 'student' })
 const dailyLogsStore = useDailyLogsStore()
 const placementStore = usePlacementStore()
 
-const availableDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 const dayOffsets: Record<string, number> = {
   Monday: 0,
   Tuesday: 1,
   Wednesday: 2,
   Thursday: 3,
   Friday: 4,
-  Saturday: 5
+  Saturday: 5,
+  Sunday: 6
 }
 
 const selectedWeek = ref<number>(1)
@@ -376,19 +384,58 @@ const formatDisplayDate = (dateStr: string): string => {
   }).format(new Date(Date.UTC(y!, m! - 1, d)))
 }
 
-// Compute active week relative to placement start date
+const getWeekMondayUTC = (startDateUTC: Date, weekNumber: number): Date => {
+  const dayOfWeek = startDateUTC.getUTCDay()
+  const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek
+
+  const week1Monday = new Date(startDateUTC.getTime())
+  week1Monday.setUTCDate(week1Monday.getUTCDate() + diffToMonday)
+
+  const targetMonday = new Date(week1Monday.getTime())
+  targetMonday.setUTCDate(targetMonday.getUTCDate() + (weekNumber - 1) * 7)
+  return targetMonday
+}
+
 const currentActiveWeek = computed<number>(() => {
   if (!placementStartDate.value) return 1
   const startUTC = parseDateUTC(placementStartDate.value)
   const now = new Date()
-  const diffMs = now.getTime() - startUTC.getTime()
-  if (diffMs < 0) return 1
-  const computedWeek = Math.floor(diffMs / (7 * 24 * 60 * 60 * 1000)) + 1
-  return Math.min(Math.max(computedWeek, 1), placementStore.maxWeeks || 24)
+  const nowUTC = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()))
+
+  const week1Monday = getWeekMondayUTC(startUTC, 1)
+  const diffDays = Math.floor((nowUTC.getTime() - week1Monday.getTime()) / (24 * 60 * 60 * 1000))
+
+  if (diffDays < 0) return 1
+  const week = Math.floor(diffDays / 7) + 1
+  return Math.min(Math.max(week, 1), placementStore.maxWeeks || 24)
 })
 
 const isWeekLocked = computed<boolean>(() => {
   return selectedWeek.value !== currentActiveWeek.value
+})
+
+const computedDaysForWeek = computed(() => {
+  if (!placementStartDate.value) return []
+  const startUTC = parseDateUTC(placementStartDate.value)
+  const weekMonday = getWeekMondayUTC(startUTC, selectedWeek.value)
+
+  return dayNames.map((name, index) => {
+    const d = new Date(weekMonday.getTime())
+    d.setUTCDate(d.getUTCDate() + index)
+    const isoString = formatUTC(d)
+    const isSunday = name === 'Sunday'
+
+    return {
+      name,
+      isoDate: isoString,
+      isSunday,
+      dateDisplay: new Intl.DateTimeFormat('en-US', {
+        month: 'short',
+        day: 'numeric',
+        timeZone: 'UTC'
+      }).format(d)
+    }
+  })
 })
 
 const computeDateFromWeekAndDay = () => {
@@ -396,14 +443,22 @@ const computeDateFromWeekAndDay = () => {
   if (!placementStartDate.value) return
 
   const startUTC = parseDateUTC(placementStartDate.value)
-  const targetDate = new Date(startUTC.getTime())
-  const daysToAdd = (selectedWeek.value - 1) * 7 + (dayOffsets[selectedDay.value] ?? 0)
-  targetDate.setUTCDate(targetDate.getUTCDate() + daysToAdd)
+  const weekMonday = getWeekMondayUTC(startUTC, selectedWeek.value)
+
+  const offset = dayOffsets[selectedDay.value] ?? 0
+  const targetDate = new Date(weekMonday.getTime())
+  targetDate.setUTCDate(targetDate.getUTCDate() + offset)
 
   const dateStr = formatUTC(targetDate)
 
+  if (selectedDay.value === 'Sunday') {
+    dateError.value = `Sunday (${formatDisplayDate(dateStr)}) is a non-working day. Logging is closed on Sundays.`
+    formDate.value = dateStr
+    return
+  }
+
   if (placementEndDate.value && dateStr > placementEndDate.value) {
-    dateError.value = 'Calculated date exceeds the placement end date.'
+    dateError.value = `Calculated date (${formatDisplayDate(dateStr)}) exceeds your registered placement conclusion date.`
   }
 
   formDate.value = dateStr
@@ -411,6 +466,20 @@ const computeDateFromWeekAndDay = () => {
 
 const onWeekOrDayChanged = () => {
   computeDateFromWeekAndDay()
+}
+
+const resolveItemStatus = (item: any): string => {
+  if (item.status) {
+    const raw = String(item.status).toUpperCase()
+    if (['APPROVED', 'SIGNED', 'VERIFIED'].includes(raw)) return 'APPROVED'
+    if (['DECLINED', 'REJECTED'].includes(raw)) return 'DECLINED'
+    if (['SUBMITTED', 'PENDING_APPROVAL'].includes(raw)) return 'SUBMITTED'
+    return raw
+  }
+
+  if (item.supervisor_approved === true || item.is_approved === true) return 'APPROVED'
+  if (item.supervisor_approved === false || item.is_rejected === true) return 'DECLINED'
+  return 'PENDING'
 }
 
 const handleFileChange = (e: Event) => {
@@ -422,6 +491,11 @@ const submitEntry = async () => {
   if (isWeekLocked.value) {
     feedbackMessage.value = `You can only record logs for Week ${currentActiveWeek.value}.`
     isSuccess.value = false
+    return
+  }
+
+  if (selectedDay.value === 'Sunday') {
+    dateError.value = 'Sunday is a non-working day. Logs cannot be submitted for Sundays.'
     return
   }
 
@@ -450,6 +524,8 @@ const submitEntry = async () => {
     imageUrlInput.value = ''
     selectedFile.value = null
     if (fileInputRef.value) fileInputRef.value.value = ''
+
+    await dailyLogsStore.fetchLogs({ limit: 150 })
   } catch (err: any) {
     isSuccess.value = false
     feedbackMessage.value = err.message || 'Failed to submit log entry.'
@@ -461,15 +537,15 @@ onMounted(async () => {
     await placementStore.fetchPlacement()
   }
 
-  // Set selected week to current active week and default day selection to Monday
   selectedWeek.value = currentActiveWeek.value
-  selectedDay.value = 'Monday'
 
-  // Derive the initial formDate based on Week & Day selection
+  const todayIndex = new Date().getDay()
+  const dayMap = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+  const currentDayName = dayMap[todayIndex] || 'Monday'
+
+  selectedDay.value = currentDayName === 'Sunday' ? 'Monday' : currentDayName
+
   computeDateFromWeekAndDay()
-
-  if (dailyLogsStore.logs.length === 0) {
-    await dailyLogsStore.fetchLogs({ limit: 150 })
-  }
+  await dailyLogsStore.fetchLogs({ limit: 150 })
 })
 </script>

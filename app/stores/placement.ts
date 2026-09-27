@@ -5,13 +5,11 @@ import { useRuntimeConfig, useCookie } from '#app'
 import { useAuthStore } from './auth'
 
 export interface PlacementData {
-  supervisor: any
-  coordinator: any
   id?: string
   student_id?: string
   company_name: string
-  state?: string | null
-  city?: string | null
+  state: string
+  city: string
   company_address?: string | null
   company_email?: string | null
   company_contact?: string | null
@@ -24,9 +22,9 @@ export interface PlacementData {
   end_date: string
   created_at?: string
   createdAt?: string
-  created_timestamp?: string
-  ind_supervisor?: { id?: string; name?: string; email?: string }
-  inst_coordinator?: { id?: string; name?: string; email?: string }
+  ind_supervisor?: { id?: string; name?: string; email?: string } | null
+  inst_coordinator?: { id?: string; name?: string; email?: string } | null
+  [key: string]: any
 }
 
 export interface SavePlacementPayload {
@@ -52,7 +50,7 @@ export const usePlacementStore = defineStore('placement', () => {
   const isLoading = ref(false)
   const error = ref<string | null>(null)
 
-  const hasPlacement = computed(() => Boolean(placement.value?.id))
+  const hasPlacement = computed(() => Boolean(placement.value?.id || placement.value?.company_name))
 
   const maxWeeks = computed(() => {
     if (!placement.value?.start_date || !placement.value?.end_date) return 24
@@ -67,22 +65,38 @@ export const usePlacementStore = defineStore('placement', () => {
     const timestamp =
       placement.value.created_at ||
       placement.value.createdAt ||
-      placement.value.created_timestamp ||
       placement.value.start_date
     if (!timestamp) return true
     const thirtyDaysMs = 30 * 24 * 60 * 60 * 1000
     return Date.now() - new Date(timestamp).getTime() <= thirtyDaysMs
   })
 
-  const getValidToken = () => {
-    return authStore.token || useCookie<string | null>('auth_token').value || null
-  }
-
   const getHeaders = () => {
-    const token = getValidToken()
+    const token = authStore.token || useCookie<string | null>('auth_token').value || null
     return {
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json'
+    }
+  }
+
+  const normalizePlacement = (rawData: any): PlacementData | null => {
+    if (!rawData) return null
+    const target = rawData.placement || rawData.data || rawData
+    if (!target || typeof target !== 'object') return null
+    if (!target.id && !target.company_name) return null
+
+    return {
+      ...target,
+      company_name: target.company_name || '',
+      state: target.state || '',
+      city: target.city || '',
+      company_address: target.company_address || null,
+      company_email: target.company_email || null,
+      company_contact: target.company_contact || null,
+      ind_supervisor_name: target.ind_supervisor_name || target.ind_supervisor?.name || null,
+      ind_supervisor_email: target.ind_supervisor_email || target.supervisor_email || target.ind_supervisor?.email || null,
+      start_date: target.start_date ? target.start_date.split('T')[0] : '',
+      end_date: target.end_date ? target.end_date.split('T')[0] : ''
     }
   }
 
@@ -92,27 +106,21 @@ export const usePlacementStore = defineStore('placement', () => {
     error.value = null
   }
 
-  const extractPlacement = (data: any): PlacementData | null => {
-    if (!data) return null
-    if (data.placement) return data.placement
-    if (data.data) return data.data
-    return data
-  }
-
   const fetchPlacement = async () => {
-    const token = getValidToken()
-    if (!token) return
+    const token = authStore.token || useCookie<string | null>('auth_token').value
+    if (!token) return null
 
     isLoading.value = true
     error.value = null
 
     try {
-      const res = await axios.get<any>(`${apiBase}/api/placements/current`, {
+      const res = await axios.get(`${apiBase}/api/placements/current`, {
         headers: getHeaders(),
+        params: { _t: Date.now() },
         withCredentials: true
       })
 
-      placement.value = extractPlacement(res.data)
+      placement.value = normalizePlacement(res.data)
       return placement.value
     } catch (err: unknown) {
       const axiosErr = err as AxiosError
@@ -126,20 +134,29 @@ export const usePlacementStore = defineStore('placement', () => {
   }
 
   const savePlacement = async (payload: SavePlacementPayload) => {
-    const token = getValidToken()
-    if (!token) throw new Error('Unauthenticated: No active access token')
+    const token = authStore.token || useCookie<string | null>('auth_token').value
+    if (!token) throw new Error('Unauthenticated: No active session')
 
     isLoading.value = true
     error.value = null
+
+    const companyName = String(payload.company_name || '').trim()
+    const stateVal = String(payload.state || '').trim()
+    const cityVal = String(payload.city || '').trim()
+
+    if (!companyName || !stateVal || !cityVal || !payload.start_date || !payload.end_date) {
+      isLoading.value = false
+      throw new Error('Company name, state, town/city, start date, and end date are mandatory')
+    }
 
     if (!placement.value?.id) {
       await fetchPlacement()
     }
 
     const cleanedPayload = {
-      company_name: payload.company_name.trim(),
-      state: payload.state ? payload.state.trim() : '',
-      city: payload.city ? payload.city.trim() : '',
+      company_name: companyName,
+      state: stateVal,
+      city: cityVal,
       company_address: payload.company_address?.trim() || null,
       company_email: payload.company_email?.trim().toLowerCase() || null,
       company_contact: payload.company_contact?.trim() || null,
@@ -158,16 +175,13 @@ export const usePlacementStore = defineStore('placement', () => {
 
     try {
       let res
+      const existingId = placement.value?.id
 
-      if (placement.value?.id) {
-        res = await axios.put(
-          `${apiBase}/api/placements/${placement.value.id}`,
-          cleanedPayload,
-          {
-            headers: getHeaders(),
-            withCredentials: true
-          }
-        )
+      if (existingId) {
+        res = await axios.put(`${apiBase}/api/placements/${existingId}`, cleanedPayload, {
+          headers: getHeaders(),
+          withCredentials: true
+        })
       } else {
         res = await axios.post(`${apiBase}/api/placements`, cleanedPayload, {
           headers: getHeaders(),
@@ -175,9 +189,9 @@ export const usePlacementStore = defineStore('placement', () => {
         })
       }
 
-      placement.value = extractPlacement(res.data)
-      await fetchPlacement()
-      return placement.value
+      const updated = normalizePlacement(res.data)
+      placement.value = updated
+      return updated
     } catch (err: unknown) {
       const axiosErr = err as AxiosError<{ message?: string; error?: string }>
       const message =
