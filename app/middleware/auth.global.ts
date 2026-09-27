@@ -27,7 +27,8 @@ export default defineNuxtRouteMiddleware((to) => {
     student: '/student/dashboard', 
     supervisor: '/supervisor/dashboard',
     coordinator: '/coordinator/dashboard',
-    admin: '/admin/dashboard'
+    admin: '/admin/dashboard',
+    itf: '/itf/dashboard'
   }
 
   // 1. Handle missing token for protected routes
@@ -65,6 +66,7 @@ export default defineNuxtRouteMiddleware((to) => {
   if (rawRole === 'ind_supervisor' || rawRole === 'is') role = 'supervisor'
   if (rawRole === 'inst_coordinator' || rawRole === 'coordinator') role = 'coordinator'
   if (rawRole === 'admin' || rawRole === 'a') role = 'admin'
+  if(rawRole === 'itf_official' || rawRole === 'itf') role = 'itf'
 
   const targetLanding = roleLandingRoutes[role] || '/login'
 

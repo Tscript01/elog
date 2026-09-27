@@ -5,6 +5,7 @@ declare module 'nuxt/app' {
   interface NuxtLayouts {
     admin: ComponentProps<typeof import("C:/Users/T_script/Desktop/log/app/layouts/admin.vue").default>
     coordinator: ComponentProps<typeof import("C:/Users/T_script/Desktop/log/app/layouts/coordinator.vue").default>
+    itf: ComponentProps<typeof import("C:/Users/T_script/Desktop/log/app/layouts/itf.vue").default>
     student: ComponentProps<typeof import("C:/Users/T_script/Desktop/log/app/layouts/student.vue").default>
     supervisor: ComponentProps<typeof import("C:/Users/T_script/Desktop/log/app/layouts/supervisor.vue").default>
   }
