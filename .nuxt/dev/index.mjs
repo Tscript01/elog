@@ -652,9 +652,9 @@ const _inlineRuntimeConfig = {
     }
   },
   "public": {
-    "apiBaseUrl": "https://elogbookserver2.vercel.app",
-    "cloudinaryUploadPreset": "wedparty",
-    "cloudinaryCloudName": "dvrpodtdw"
+    "apiBaseUrl": "http://localhost:5000",
+    "cloudinaryUploadPreset": "",
+    "cloudinaryCloudName": ""
   }
 };
 const envOptions = {

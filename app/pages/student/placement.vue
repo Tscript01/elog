@@ -16,7 +16,7 @@
           Industrial Attachment Profile
         </h1>
         <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
-          Official registration of your host organization, industry mentor, and active deployment dates.
+          Official registration of your host organization, industry mentor, geographical territory, and active deployment dates.
         </p>
       </div>
 
@@ -45,7 +45,7 @@
               </div>
               <div>
                 <h2 class="text-sm font-bold text-slate-900 dark:text-white">Organization & Supervision</h2>
-                <p class="text-[11px] text-slate-500 dark:text-slate-400">Company location and technical mentor details</p>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400">Company location, zonal cluster, and technical mentor details</p>
               </div>
             </div>
 
@@ -97,19 +97,63 @@
               </p>
             </div>
 
-            <!-- Address -->
+            <!-- State of Attachment (Dropdown) -->
+            <div>
+              <label for="placement-state" class="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                State of Attachment <span class="text-rose-500">*</span>
+              </label>
+              <select
+                id="placement-state"
+                v-model="form.state"
+                required
+                :disabled="inputsDisabled"
+                class="mt-1.5 block w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-2xs transition focus:border-slate-900 focus:outline-hidden disabled:bg-slate-100 disabled:text-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:disabled:bg-slate-800/50 dark:disabled:text-slate-400"
+              >
+                <option value="" disabled>Select State</option>
+                <option v-for="state in nigerianStates" :key="state" :value="state">
+                  {{ state }}
+                </option>
+              </select>
+              <p v-if="errors.state" class="mt-1 text-xs font-medium text-rose-600 dark:text-rose-400">
+                {{ errors.state }}
+              </p>
+            </div>
+
+            <!-- Town / City -->
+            <div>
+              <label for="placement-city" class="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                Town / City <span class="text-rose-500">*</span>
+              </label>
+              <input
+                id="placement-city"
+                v-model.trim="form.city"
+                type="text"
+                required
+                placeholder="e.g. Ikeja, Benin City, Port Harcourt"
+                :disabled="inputsDisabled"
+                class="mt-1.5 block w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-2xs transition focus:border-slate-900 focus:outline-hidden disabled:bg-slate-100 disabled:text-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:disabled:bg-slate-800/50 dark:disabled:text-slate-400"
+              />
+              <p v-if="errors.city" class="mt-1 text-xs font-medium text-rose-600 dark:text-rose-400">
+                {{ errors.city }}
+              </p>
+            </div>
+
+            <!-- Detailed Office Address -->
             <div class="sm:col-span-2">
               <label for="company-address" class="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                Physical Office Address
+                Physical Office Address / Site Location <span class="text-rose-500">*</span>
               </label>
               <textarea
                 id="company-address"
                 v-model.trim="form.company_address"
                 rows="3"
-                placeholder="Street address, city, state, or installation site..."
+                placeholder="Street address, building number, industrial layout, or installation site..."
                 :disabled="inputsDisabled"
                 class="mt-1.5 block w-full resize-y rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-2xs transition focus:border-slate-900 focus:outline-hidden disabled:bg-slate-100 disabled:text-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:disabled:bg-slate-800/50 dark:disabled:text-slate-400"
               />
+              <p v-if="errors.company_address" class="mt-1 text-xs font-medium text-rose-600 dark:text-rose-400">
+                {{ errors.company_address }}
+              </p>
             </div>
 
             <!-- Company Email -->
@@ -268,14 +312,28 @@
           </div>
         </div>
 
-        <!-- Stakeholders Card -->
+        <!-- Stakeholders & Geographical Territory Card -->
         <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs transition-colors dark:border-slate-800 dark:bg-slate-900">
           <div class="flex items-center justify-between border-b border-slate-100 pb-3 dark:border-slate-800">
             <span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Regulatory Reviewers</span>
             <ShieldCheck class="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
           </div>
 
-          <ul class="mt-4 space-y-4 text-xs">
+          <ul class="mt-4 space-y-3.5 text-xs">
+            <!-- Geographical Territory Badge -->
+            <li class="rounded-xl border border-slate-100 bg-slate-50/50 p-3 dark:border-slate-800 dark:bg-slate-800/40">
+              <span class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
+                <MapPin class="h-3 w-3 text-blue-600 dark:text-blue-400" />
+                Zonal Cluster Territory
+              </span>
+              <p class="mt-1 font-bold text-slate-800 dark:text-slate-100">
+                {{ form.city || 'Town/City pending' }}, {{ form.state || 'State pending' }}
+              </p>
+              <p class="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">
+                Institutional supervisors are assigned to you according to this cluster for on-site visits.
+              </p>
+            </li>
+
             <li class="rounded-xl border border-slate-100 bg-slate-50/50 p-3 dark:border-slate-800 dark:bg-slate-800/40">
               <span class="block text-[10px] font-bold uppercase tracking-wider text-slate-400">
                 Industry Supervisor
@@ -315,7 +373,8 @@ import {
   Loader2,
   Pencil,
   Lock,
-  ShieldCheck
+  ShieldCheck,
+  MapPin
 } from 'lucide-vue-next'
 import { usePlacementStore, type PlacementData } from '~/stores/placement'
 import { useToast } from '~/composables/useToast'
@@ -324,11 +383,21 @@ definePageMeta({
   layout: 'student'
 })
 
+const nigerianStates = [
+  'Abia', 'Adamawa', 'Akwa Ibom', 'Anambra', 'Bauchi', 'Bayelsa', 'Benue', 'Borno',
+  'Cross River', 'Delta', 'Ebonyi', 'Edo', 'Ekiti', 'Enugu', 'Federal Capital Territory (FCT)',
+  'Gombe', 'Imo', 'Jigawa', 'Kaduna', 'Kano', 'Katsina', 'Kebbi', 'Kogi', 'Kwara',
+  'Lagos', 'Nasarawa', 'Niger', 'Ogun', 'Ondo', 'Osun', 'Oyo', 'Plateau', 'Rivers',
+  'Sokoto', 'Taraba', 'Yobe', 'Zamfara'
+]
+
 const placementStore = usePlacementStore()
 const toast = useToast()
 
 const form = reactive({
   company_name: '',
+  state: '',
+  city: '',
   company_address: '',
   company_email: '',
   company_contact: '',
@@ -369,39 +438,43 @@ const computedWeeks = computed(() => {
 const syncFormFromStore = (data: PlacementData | null) => {
   if (!data) return
 
-  form.company_name = data.company_name || ''
-  form.company_address = data.company_address || ''
-  form.company_email = data.company_email || ''
-  form.company_contact = data.company_contact || ''
+  const target = (data as any).placement || (data as any).data || data
+
+  form.company_name = target.company_name || ''
+  form.state = target.state || ''
+  form.city = target.city || ''
+  form.company_address = target.company_address || ''
+  form.company_email = target.company_email || ''
+  form.company_contact = target.company_contact || ''
 
   const resolvedSupervisorName =
-    data.ind_supervisor_name ||
-    data.ind_supervisor?.name ||
-    data.supervisor?.name ||
+    target.ind_supervisor_name ||
+    target.ind_supervisor?.name ||
+    target.supervisor?.name ||
     ''
 
   const resolvedSupervisorEmail =
-    data.ind_supervisor_email ||
-    data.supervisor_email ||
-    data.ind_supervisor?.email ||
-    data.supervisor?.email ||
+    target.ind_supervisor_email ||
+    target.supervisor_email ||
+    target.ind_supervisor?.email ||
+    target.supervisor?.email ||
     ''
 
   form.ind_supervisor_name = resolvedSupervisorName
   form.ind_supervisor_email = resolvedSupervisorEmail
 
-  form.start_date = data.start_date ? data.start_date.split('T')[0] ?? '' : ''
-  form.end_date = data.end_date ? data.end_date.split('T')[0] ?? '' : ''
+  form.start_date = target.start_date ? target.start_date.split('T')[0] ?? '' : ''
+  form.end_date = target.end_date ? target.end_date.split('T')[0] ?? '' : ''
 
   assignedSupervisor.name = resolvedSupervisorName
   assignedSupervisor.email = resolvedSupervisorEmail
 
-  if (data.inst_coordinator) {
-    assignedCoordinator.name = data.inst_coordinator.name || ''
-    assignedCoordinator.email = data.inst_coordinator.email || ''
-  } else if (data.coordinator) {
-    assignedCoordinator.name = data.coordinator.name || ''
-    assignedCoordinator.email = data.coordinator.email || ''
+  if (target.inst_coordinator) {
+    assignedCoordinator.name = target.inst_coordinator.name || ''
+    assignedCoordinator.email = target.inst_coordinator.email || ''
+  } else if (target.coordinator) {
+    assignedCoordinator.name = target.coordinator.name || ''
+    assignedCoordinator.email = target.coordinator.email || ''
   }
 }
 
@@ -428,6 +501,8 @@ const cancelOrReset = () => {
     syncFormFromStore(placementStore.placement)
   } else {
     form.company_name = ''
+    form.state = ''
+    form.city = ''
     form.company_address = ''
     form.company_email = ''
     form.company_contact = ''
@@ -445,6 +520,18 @@ const save = async () => {
 
   if (form.company_name.trim().length < 2) {
     nextErrors.company_name = 'Enter the registered name of the hosting organization.'
+  }
+
+  if (!form.state) {
+    nextErrors.state = 'Select the State where your attachment is located.'
+  }
+
+  if (form.city.trim().length < 2) {
+    nextErrors.city = 'Specify the Town or City location of the facility.'
+  }
+
+  if (form.company_address.trim().length < 5) {
+    nextErrors.company_address = 'Provide a full physical address for on-site inspection.'
   }
 
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.ind_supervisor_email)) {
@@ -475,7 +562,9 @@ const save = async () => {
   try {
     const updated = await placementStore.savePlacement({
       company_name: form.company_name.trim(),
-      company_address: form.company_address.trim() || null,
+      state: form.state,
+      city: form.city.trim(),
+      company_address: form.company_address.trim(),
       company_email: form.company_email.trim() || null,
       company_contact: form.company_contact.trim() || null,
       ind_supervisor_name: form.ind_supervisor_name.trim() || null,

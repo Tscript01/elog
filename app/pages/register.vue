@@ -138,7 +138,7 @@
 
                 <div>
                   <label for="email" class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
-                    Institutional Email <span class="text-rose-500">*</span>
+                     Email <span class="text-rose-500">*</span>
                   </label>
                   <div class="relative mt-1.5">
                     <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400 dark:text-slate-500">

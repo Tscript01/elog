@@ -64,6 +64,7 @@ export default defineNuxtRouteMiddleware((to) => {
   let role = rawRole
   if (rawRole === 'ind_supervisor' || rawRole === 'is') role = 'supervisor'
   if (rawRole === 'inst_coordinator' || rawRole === 'coordinator') role = 'coordinator'
+  if (rawRole === 'admin' || rawRole === 'a') role = 'admin'
 
   const targetLanding = roleLandingRoutes[role] || '/login'
 

@@ -18,7 +18,7 @@
               SIWES Placement Registration
             </h2>
             <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-              Industrial Training Fund policy requires all trainees to document their primary organization and supervisor before log entries can be recorded.
+              Industrial Training Fund policy requires all trainees to document their primary organization, geographic location, and supervisor before log entries can be recorded.
             </p>
           </div>
         </div>
@@ -35,20 +35,53 @@
               type="text"
               required
               placeholder="e.g. Chevron Nigeria Limited"
-              class="mt-1.5 block w-full rounded-xl border border-slate-300 bg-slate-50/50 px-3.5 py-2.5 text-xs text-slate-900 placeholder-slate-400 transition-colors focus:border-blue-600 focus:bg-white focus:outline-none dark:border-slate-800 dark:bg-slate-950/80 dark:text-slate-100 dark:placeholder-slate-600 dark:focus:border-blue-500 dark:focus:bg-slate-950"
+              class="mt-1.5 block w-full rounded-xl border border-slate-300 bg-slate-50/50 px-3.5 py-2.5 text-xs text-slate-900 placeholder-slate-400 transition-colors focus:border-blue-600 focus:bg-white focus:outline-hidden dark:border-slate-800 dark:bg-slate-950/80 dark:text-slate-100 dark:placeholder-slate-600 dark:focus:border-blue-500 dark:focus:bg-slate-950"
             />
+          </div>
+
+          <!-- Geographical Territory: State & Town/City -->
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+              <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
+                State of Attachment <span class="text-rose-500">*</span>
+              </label>
+              <select
+                v-model="modalForm.state"
+                required
+                class="mt-1.5 block w-full rounded-xl border border-slate-300 bg-slate-50/50 px-3.5 py-2.5 text-xs text-slate-900 transition-colors focus:border-blue-600 focus:bg-white focus:outline-hidden dark:border-slate-800 dark:bg-slate-950/80 dark:text-slate-100 dark:focus:border-blue-500 dark:focus:bg-slate-950"
+              >
+                <option value="" disabled>Select State</option>
+                <option v-for="state in nigerianStates" :key="state" :value="state">
+                  {{ state }}
+                </option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
+                Town / City <span class="text-rose-500">*</span>
+              </label>
+              <input
+                v-model.trim="modalForm.city"
+                type="text"
+                required
+                placeholder="e.g. Ikeja, Benin City"
+                class="mt-1.5 block w-full rounded-xl border border-slate-300 bg-slate-50/50 px-3.5 py-2.5 text-xs text-slate-900 placeholder-slate-400 transition-colors focus:border-blue-600 focus:bg-white focus:outline-hidden dark:border-slate-800 dark:bg-slate-950/80 dark:text-slate-100 dark:placeholder-slate-600 dark:focus:border-blue-500 dark:focus:bg-slate-950"
+              />
+            </div>
           </div>
 
           <!-- Physical Address -->
           <div>
             <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
-              Company Physical Location Address
+              Company Physical Location Address <span class="text-rose-500">*</span>
             </label>
             <textarea
               v-model.trim="modalForm.company_address"
               rows="2"
-              placeholder="Plot / Street address, City, State..."
-              class="mt-1.5 block w-full rounded-xl border border-slate-300 bg-slate-50/50 px-3.5 py-2 text-xs text-slate-900 placeholder-slate-400 transition-colors focus:border-blue-600 focus:bg-white focus:outline-none dark:border-slate-800 dark:bg-slate-950/80 dark:text-slate-100 dark:placeholder-slate-600 dark:focus:border-blue-500 dark:focus:bg-slate-950"
+              required
+              placeholder="Plot / Street address, Industrial layout, or installation site..."
+              class="mt-1.5 block w-full rounded-xl border border-slate-300 bg-slate-50/50 px-3.5 py-2 text-xs text-slate-900 placeholder-slate-400 transition-colors focus:border-blue-600 focus:bg-white focus:outline-hidden dark:border-slate-800 dark:bg-slate-950/80 dark:text-slate-100 dark:placeholder-slate-600 dark:focus:border-blue-500 dark:focus:bg-slate-950"
             />
           </div>
 
@@ -62,7 +95,7 @@
                 v-model.trim="modalForm.company_email"
                 type="email"
                 placeholder="contact@company.com"
-                class="mt-1.5 block w-full rounded-xl border border-slate-300 bg-slate-50/50 px-3.5 py-2.5 text-xs text-slate-900 placeholder-slate-400 transition-colors focus:border-blue-600 focus:bg-white focus:outline-none dark:border-slate-800 dark:bg-slate-950/80 dark:text-slate-100 dark:placeholder-slate-600 dark:focus:border-blue-500 dark:focus:bg-slate-950"
+                class="mt-1.5 block w-full rounded-xl border border-slate-300 bg-slate-50/50 px-3.5 py-2.5 text-xs text-slate-900 placeholder-slate-400 transition-colors focus:border-blue-600 focus:bg-white focus:outline-hidden dark:border-slate-800 dark:bg-slate-950/80 dark:text-slate-100 dark:placeholder-slate-600 dark:focus:border-blue-500 dark:focus:bg-slate-950"
               />
             </div>
 
@@ -75,7 +108,7 @@
                 v-model.trim="modalForm.company_contact"
                 type="tel"
                 placeholder="+234..."
-                class="mt-1.5 block w-full rounded-xl border border-slate-300 bg-slate-50/50 px-3.5 py-2.5 text-xs text-slate-900 placeholder-slate-400 transition-colors focus:border-blue-600 focus:bg-white focus:outline-none dark:border-slate-800 dark:bg-slate-950/80 dark:text-slate-100 dark:placeholder-slate-600 dark:focus:border-blue-500 dark:focus:bg-slate-950"
+                class="mt-1.5 block w-full rounded-xl border border-slate-300 bg-slate-50/50 px-3.5 py-2.5 text-xs text-slate-900 placeholder-slate-400 transition-colors focus:border-blue-600 focus:bg-white focus:outline-hidden dark:border-slate-800 dark:bg-slate-950/80 dark:text-slate-100 dark:placeholder-slate-600 dark:focus:border-blue-500 dark:focus:bg-slate-950"
               />
             </div>
           </div>
@@ -84,7 +117,7 @@
           <div>
             <div class="flex items-center justify-between">
               <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
-                Industry-Based Supervisor Email <span class="text-rose-500">*</span>
+                Industry Supervisor Email <span class="text-rose-500">*</span>
               </label>
               <span class="text-[10px] text-slate-400">Used for weekly sign-offs</span>
             </div>
@@ -93,7 +126,7 @@
               type="email"
               required
               placeholder="supervisor@company.com"
-              class="mt-1.5 block w-full rounded-xl border border-slate-300 bg-slate-50/50 px-3.5 py-2.5 text-xs text-slate-900 placeholder-slate-400 transition-colors focus:border-blue-600 focus:bg-white focus:outline-none dark:border-slate-800 dark:bg-slate-950/80 dark:text-slate-100 dark:placeholder-slate-600 dark:focus:border-blue-500 dark:focus:bg-slate-950"
+              class="mt-1.5 block w-full rounded-xl border border-slate-300 bg-slate-50/50 px-3.5 py-2.5 text-xs text-slate-900 placeholder-slate-400 transition-colors focus:border-blue-600 focus:bg-white focus:outline-hidden dark:border-slate-800 dark:bg-slate-950/80 dark:text-slate-100 dark:placeholder-slate-600 dark:focus:border-blue-500 dark:focus:bg-slate-950"
             />
           </div>
 
@@ -107,7 +140,7 @@
                 v-model="modalForm.start_date"
                 type="date"
                 required
-                class="mt-1.5 block w-full rounded-xl border border-slate-300 bg-slate-50/50 px-3.5 py-2 text-xs text-slate-900 transition-colors focus:border-blue-600 focus:bg-white focus:outline-none dark:border-slate-800 dark:bg-slate-950/80 dark:text-slate-100 dark:focus:border-blue-500 dark:focus:bg-slate-950"
+                class="mt-1.5 block w-full rounded-xl border border-slate-300 bg-slate-50/50 px-3.5 py-2 text-xs text-slate-900 transition-colors focus:border-blue-600 focus:bg-white focus:outline-hidden dark:border-slate-800 dark:bg-slate-950/80 dark:text-slate-100 dark:focus:border-blue-500 dark:focus:bg-slate-950"
               />
             </div>
             <div>
@@ -118,7 +151,7 @@
                 v-model="modalForm.end_date"
                 type="date"
                 required
-                class="mt-1.5 block w-full rounded-xl border border-slate-300 bg-slate-50/50 px-3.5 py-2 text-xs text-slate-900 transition-colors focus:border-blue-600 focus:bg-white focus:outline-none dark:border-slate-800 dark:bg-slate-950/80 dark:text-slate-100 dark:focus:border-blue-500 dark:focus:bg-slate-950"
+                class="mt-1.5 block w-full rounded-xl border border-slate-300 bg-slate-50/50 px-3.5 py-2 text-xs text-slate-900 transition-colors focus:border-blue-600 focus:bg-white focus:outline-hidden dark:border-slate-800 dark:bg-slate-950/80 dark:text-slate-100 dark:focus:border-blue-500 dark:focus:bg-slate-950"
               />
             </div>
           </div>
@@ -426,8 +459,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, onBeforeUnmount } from 'vue'
-import axios from 'axios'
+import { ref, reactive, computed, watch, onMounted, onBeforeUnmount } from 'vue'
+import axios, { AxiosError } from 'axios'
 import { jwtDecode } from 'jwt-decode'
 import { useCookie, useRuntimeConfig, navigateTo, useRoute } from '#app'
 import {
@@ -461,6 +494,14 @@ interface DecodedUserToken {
   [key: string]: unknown
 }
 
+const nigerianStates = [
+  'Abia', 'Adamawa', 'Akwa Ibom', 'Anambra', 'Bauchi', 'Bayelsa', 'Benue', 'Borno',
+  'Cross River', 'Delta', 'Ebonyi', 'Edo', 'Ekiti', 'Enugu', 'Federal Capital Territory (FCT)',
+  'Gombe', 'Imo', 'Jigawa', 'Kaduna', 'Kano', 'Katsina', 'Kebbi', 'Kogi', 'Kwara',
+  'Lagos', 'Nasarawa', 'Niger', 'Ogun', 'Ondo', 'Osun', 'Oyo', 'Plateau', 'Rivers',
+  'Sokoto', 'Taraba', 'Yobe', 'Zamfara'
+]
+
 const route = useRoute()
 const config = useRuntimeConfig()
 const apiBase = (config.public.apiBaseUrl as string) || ''
@@ -478,6 +519,8 @@ const isSubmittingModal = ref(false)
 
 const modalForm = reactive({
   company_name: '',
+  state: '',
+  city: '',
   company_address: '',
   company_email: '',
   company_contact: '',
@@ -585,30 +628,60 @@ const extractUserFromToken = () => {
 }
 
 const verifyPlacementInBackground = async () => {
-  // Always force-fetch from API to guarantee we check the currently authenticated token
-  await placementStore.fetchPlacement()
+  const token = useCookie<string | null>('auth_token').value
+  if (!token) return
 
-  // If the user has no placement and is NOT already on the dedicated placement page, display modal
-  if (!placementStore.hasPlacement && route.path !== '/student/placement') {
-    showPlacementModal.value = true
-  } else {
-    showPlacementModal.value = false
+  try {
+    const res = await axios.get<any>(`${apiBase}/api/placements/current`, {
+      headers: getAuthHeaders(),
+      withCredentials: true
+    })
+
+    const data = res.data?.placement || res.data?.data || res.data
+    if (data && (data.id || data.company_name)) {
+      placementStore.placement = data
+      showPlacementModal.value = false
+    } else {
+      placementStore.placement = null
+      if (route.path !== '/student/placement') {
+        showPlacementModal.value = true
+      }
+    }
+  } catch (err: unknown) {
+    const axiosErr = err as AxiosError
+    // ONLY display modal if the backend definitively says 404 (no placement found)
+    if (axiosErr.response?.status === 404) {
+      placementStore.placement = null
+      if (route.path !== '/student/placement') {
+        showPlacementModal.value = true
+      }
+    } else {
+      // Network failure, 500 error, or server timeout: DO NOT show modal
+      showPlacementModal.value = false
+      toast.error('Unable to verify placement status due to a connection error.', 'Network Offline')
+    }
   }
 }
 
-// Watch route changes: re-check if user navigates away from /student/placement without saving
 watch(
   () => route.path,
   (newPath) => {
-    if (!placementStore.hasPlacement && newPath !== '/student/placement') {
-      showPlacementModal.value = true
-    } else if (newPath === '/student/placement') {
+    if (!placementStore.hasPlacement && showPlacementModal.value && newPath === '/student/placement') {
       showPlacementModal.value = false
     }
   }
 )
+
 const submitModalPlacement = async () => {
-  if (!modalForm.company_name || !modalForm.supervisor_email || !modalForm.start_date || !modalForm.end_date) {
+  if (
+    !modalForm.company_name ||
+    !modalForm.state ||
+    !modalForm.city ||
+    !modalForm.company_address ||
+    !modalForm.supervisor_email ||
+    !modalForm.start_date ||
+    !modalForm.end_date
+  ) {
     toast.error(new Error('Please fill in all mandatory fields indicated with an asterisk.'), 'Validation Incomplete')
     return
   }
@@ -626,12 +699,19 @@ const submitModalPlacement = async () => {
     return
   }
 
+  const thirtyDaysMs = 30 * 24 * 60 * 60 * 1000
+  if (endDateObj.getTime() - startDateObj.getTime() < thirtyDaysMs) {
+    toast.error(new Error('SIWES industrial training duration must be at least 1 month (30 days).'), 'Duration Too Short')
+    return
+  }
+
   isSubmittingModal.value = true
   try {
-    // Convert YYYY-MM-DD to ISO 8601 strings to satisfy backend DateTime schemas
     const payload = {
       company_name: modalForm.company_name.trim(),
-      company_address: modalForm.company_address.trim() || null,
+      state: modalForm.state,
+      city: modalForm.city.trim(),
+      company_address: modalForm.company_address.trim(),
       company_email: modalForm.company_email.trim() || null,
       company_contact: modalForm.company_contact.trim() || null,
       supervisor_email: modalForm.supervisor_email.trim().toLowerCase(),
@@ -699,15 +779,11 @@ const handleClickOutside = (event: MouseEvent) => {
 
 const handleLogout = async () => {
   isProfileDropdownOpen.value = false
-  
-  // 1. Purge cookies
+
   const tokenCookie = useCookie<string | null>('auth_token')
   tokenCookie.value = null
 
-  // 2. Clear stale memory in Pinia
   placementStore.resetState()
-
-  // 3. Clear local modal state
   showPlacementModal.value = false
 
   await navigateTo('/login')
@@ -717,7 +793,6 @@ onMounted(async () => {
   initTheme()
   extractUserFromToken()
   
-  // Force a fresh verification against the database
   await verifyPlacementInBackground()
   
   fetchPendingEntriesCount()
@@ -727,6 +802,7 @@ onMounted(async () => {
     window.addEventListener('click', handleClickOutside)
   }
 })
+
 onBeforeUnmount(() => {
   if (import.meta.client) {
     window.removeEventListener('click', handleClickOutside)

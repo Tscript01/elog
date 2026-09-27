@@ -10,6 +10,8 @@ export interface PlacementData {
   id?: string
   student_id?: string
   company_name: string
+  state?: string | null
+  city?: string | null
   company_address?: string | null
   company_email?: string | null
   company_contact?: string | null
@@ -29,6 +31,8 @@ export interface PlacementData {
 
 export interface SavePlacementPayload {
   company_name: string
+  state: string
+  city: string
   company_address?: string | null
   company_email?: string | null
   company_contact?: string | null
@@ -81,11 +85,20 @@ export const usePlacementStore = defineStore('placement', () => {
       'Content-Type': 'application/json'
     }
   }
-const resetState = () => {
-  placement.value = null
-  isLoading.value = false
-  error.value = null
-}
+
+  const resetState = () => {
+    placement.value = null
+    isLoading.value = false
+    error.value = null
+  }
+
+  const extractPlacement = (data: any): PlacementData | null => {
+    if (!data) return null
+    if (data.placement) return data.placement
+    if (data.data) return data.data
+    return data
+  }
+
   const fetchPlacement = async () => {
     const token = getValidToken()
     if (!token) return
@@ -99,8 +112,7 @@ const resetState = () => {
         withCredentials: true
       })
 
-      // Handles both direct object response and wrapped { placement: ... } responses
-      placement.value = res.data?.placement || res.data || null
+      placement.value = extractPlacement(res.data)
       return placement.value
     } catch (err: unknown) {
       const axiosErr = err as AxiosError
@@ -120,14 +132,14 @@ const resetState = () => {
     isLoading.value = true
     error.value = null
 
-    // Ensure state is fresh before deciding between POST and PUT
     if (!placement.value?.id) {
       await fetchPlacement()
     }
 
-    // Format dates to ISO 8601 strings and normalize empty strings to null
     const cleanedPayload = {
       company_name: payload.company_name.trim(),
+      state: payload.state ? payload.state.trim() : '',
+      city: payload.city ? payload.city.trim() : '',
       company_address: payload.company_address?.trim() || null,
       company_email: payload.company_email?.trim().toLowerCase() || null,
       company_contact: payload.company_contact?.trim() || null,
@@ -163,8 +175,7 @@ const resetState = () => {
         })
       }
 
-      // Update state directly from response, then re-fetch
-      placement.value = res.data?.placement || res.data || null
+      placement.value = extractPlacement(res.data)
       await fetchPlacement()
       return placement.value
     } catch (err: unknown) {
