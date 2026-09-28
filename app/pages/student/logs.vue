@@ -1,6 +1,6 @@
 <template>
   <div class="space-y-8">
-    <!-- Header Banner -->
+    <!-- Header Banner with Check My Logbook Button -->
     <div class="flex flex-col justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900 sm:flex-row sm:items-center">
       <div>
         <div class="flex items-center gap-2">
@@ -20,11 +20,23 @@
         </p>
       </div>
 
-      <div class="flex items-center gap-3">
+      <!-- Action Area -->
+      <div class="flex flex-wrap items-center gap-3">
         <span class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs font-semibold text-slate-700 dark:border-slate-800 dark:bg-slate-800 dark:text-slate-300">
           <CalendarDays class="h-4 w-4 text-blue-600 dark:text-blue-400" />
           <span>Active: Week {{ currentActiveWeek }}</span>
         </span>
+
+        <button
+          type="button"
+          :disabled="isCheckingLogbook"
+          class="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-xs font-bold text-white shadow-xs transition hover:bg-slate-800 disabled:opacity-50 dark:bg-blue-600 dark:hover:bg-blue-500"
+          @click="checkMyLogbook"
+        >
+          <Loader2 v-if="isCheckingLogbook" class="h-3.5 w-3.5 animate-spin" />
+          <FileText v-else class="h-3.5 w-3.5" />
+          <span>Check My Logbook</span>
+        </button>
       </div>
     </div>
 
@@ -314,6 +326,8 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import axios from 'axios'
+import { useCookie, useRuntimeConfig } from '#app'
 import {
   AlertCircle,
   CheckCircle2,
@@ -327,8 +341,13 @@ import {
 } from 'lucide-vue-next'
 import { useDailyLogsStore } from '~/stores/dailyLogs'
 import { usePlacementStore } from '~/stores/placement'
+import { useToast } from '~/composables/useToast'
 
 definePageMeta({ layout: 'student' })
+
+const config = useRuntimeConfig()
+const apiBase = (config.public.apiBaseUrl as string) || ''
+const toast = useToast()
 
 const dailyLogsStore = useDailyLogsStore()
 const placementStore = usePlacementStore()
@@ -353,6 +372,7 @@ const attachmentMode = ref<'url' | 'file'>('url')
 const selectedFile = ref<File | null>(null)
 const fileInputRef = ref<HTMLInputElement | null>(null)
 
+const isCheckingLogbook = ref(false)
 const feedbackMessage = ref('')
 const isSuccess = ref(false)
 const dateError = ref('')
@@ -529,6 +549,32 @@ const submitEntry = async () => {
   } catch (err: any) {
     isSuccess.value = false
     feedbackMessage.value = err.message || 'Failed to submit log entry.'
+  }
+}
+
+// Authenticated blob viewer for "Check My Logbook"
+const checkMyLogbook = async () => {
+  const token = useCookie<string | null>('auth_token').value
+  if (!token) {
+    toast.error(new Error('Session expired. Please log in again.'), 'Unauthorized')
+    return
+  }
+
+  isCheckingLogbook.value = true
+  try {
+    const res = await axios.get(`${apiBase}/api/placements/export/pdf`, {
+      headers: { Authorization: `Bearer ${token}` },
+      responseType: 'blob',
+      withCredentials: true
+    })
+
+    const blob = new Blob([res.data], { type: 'application/pdf' })
+    const pdfUrl = URL.createObjectURL(blob)
+    window.open(pdfUrl, '_blank')
+  } catch (err: unknown) {
+    toast.error(err, 'Failed to open logbook PDF')
+  } finally {
+    isCheckingLogbook.value = false
   }
 }
 

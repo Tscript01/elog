@@ -546,7 +546,7 @@ const sections = computed(() => [
         badge: logbook.value.pendingEntries > 0 ? logbook.value.pendingEntries : null
       },
       { label: 'Submissions', to: '/student/submissions', icon: CalendarDays, badge: null },
-      { label: 'Feedback', to: '/student/feedback', icon: MessageSquareQuote, badge: null }
+      // { label: 'View logbook', to: '/student/downlog', icon: MessageSquareQuote, badge: null }
     ]
   },
   {
